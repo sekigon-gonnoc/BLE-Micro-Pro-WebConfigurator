@@ -30,7 +30,13 @@ class WebSerial {
 
   async open(onConnect: () => void | null) {
     this.port = await navigator.serial.requestPort();
-    await this.port.open({ baudrate: 115200, buffersize: 81920 });
+
+    try {
+      await this.port.open({ baudrate: 115200, buffersize: 81920 });
+    } catch (e) {
+      await this.port.close();
+      return Promise.reject(e);
+    }
 
     this._connected = true;
     this._readloopRunning = false;
@@ -117,7 +123,6 @@ class WebSerial {
   }
 
   async close() {
-    this._connected = false;
     if (this.reader) {
       try {
         await this.reader.cancel();
@@ -142,6 +147,7 @@ class WebSerial {
       try {
         await this.port.close();
         this.port = null;
+        this._connected = false;
       } catch (e) {
         console.error(e);
       }

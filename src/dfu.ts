@@ -146,7 +146,7 @@ class DfuBootloader {
         this.received = false;
       } else {
         this.received = false;
-        throw new Error("Failed to receive command response");
+        throw new Error("Failed to receive command response.");
       }
     }
   }
@@ -170,7 +170,7 @@ class DfuBootloader {
     await this.waitReceive();
 
     if (!this.command_result.success) {
-      return Promise.reject("Failed to set Packet Receipt Notification");
+      return Promise.reject("Failed to set Packet Receipt Notification.");
     }
   }
 
@@ -186,7 +186,7 @@ class DfuBootloader {
       return u16data[0];
     } else {
       console.error("Get mtu:Failed");
-      return Promise.reject();
+      return Promise.reject(new Error("Failed to get MTU"));
     }
   }
 
@@ -307,7 +307,7 @@ class DfuBootloader {
 
     let crc_response = await this.requestChecksum();
     if (!crc_response) {
-      return Promise.reject(new Error("Failed to get checksum"));
+      return Promise.reject(new Error("Failed to get checksum."));
     }
     console.log("crc_response", crc_response);
 
@@ -317,11 +317,11 @@ class DfuBootloader {
           16
         )}, Received: 0x${crc_response.crc.toString(16)}`
       );
-      return Promise.reject(new Error("CRC Error"));
+      return Promise.reject(new Error("CRC Error."));
     }
 
     if (offset != crc_response.offset) {
-      return Promise.reject(new Error("Offset error. packet lossed"));
+      return Promise.reject(new Error("Offset error. Packet lossed."));
     }
 
     return crc;
@@ -406,7 +406,7 @@ class DfuBootloader {
     let packet = this.slip.encode(msg);
     console.log(`serial send ${packet.byteLength}byte`);
     if (!this.serial.connected) {
-      return Promise.reject(new Error("serial port is closed"));
+      return Promise.reject(new Error("Serial port is not opend."));
     }
     await this.serial.write(packet);
   }
@@ -447,11 +447,11 @@ class DfuBootloader {
     console.log("Select Command:", response);
 
     if (!response) {
-      return Promise.reject(new Error("Invalid response"));
+      return Promise.reject(new Error("Invalid response."));
     }
 
     if (response.max_size < packet.length) {
-      return Promise.reject(new Error("Too long Init packet"));
+      return Promise.reject(new Error("Too long init packet."));
     }
 
     if (response && (await tryToResume(response))) {
@@ -511,7 +511,7 @@ class DfuBootloader {
     let response = Object.assign({}, await this.selectData());
 
     if (!response) {
-      return Promise.reject(new Error("Invalid response"));
+      return Promise.reject(new Error("Invalid response."));
     }
 
     console.log("Select Data:", response);

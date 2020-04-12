@@ -22,17 +22,40 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+function notifyUpdateResult(progress, message) {
+  app.ports.updateResult.send({ progress: progress, message: message });
+}
+
+function notifyUpdateProgress(progress) {
+  notifyUpdateResult(progress, "");
+}
+
+function notifyBootloaderWakeup() {
+  notifyUpdateResult(-1, "");
+}
+
+function notifyUpdateError(message) {
+  notifyUpdateResult(-2, message);
+}
+
 app.ports.updateFirmware.subscribe(async (command) => {
   const dfu = new DfuBootloader(serial);
   console.log(command);
 
   if (serial.connected) {
     try {
+      console.log("close previous port");
       await serial.close();
     } catch (e) {}
   }
 
-  await serial.open();
+  try {
+    await serial.open();
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+    return;
+  }
   serial.startReadLoop();
 
   let firmName = `${command.type}/${command.name}`;
@@ -48,7 +71,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
   if (!(dat.ok && bin.ok)) {
     console.error("failed to load file");
-    app.ports.updateResult.send(-2);
+    notifyUpdateError(`File ${firmName} not found.`);
     return;
   }
 
@@ -59,9 +82,8 @@ app.ports.updateFirmware.subscribe(async (command) => {
     await serial.writeString("\x03\ndfu\n\xc0");
   } catch (e) {
     console.error(e);
-    console.log("try to wake dfu");
 
-    app.ports.updateResult.send(-2);
+    notifyUpdateError(e.message);
 
     return;
   }
@@ -76,7 +98,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
     }
   } catch (e) {
     console.error(e);
-    app.ports.updateResult.send(-1);
+    notifyBootloaderWakeup();
     return;
   }
 
@@ -88,11 +110,11 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
     const firmImage = await bin.arrayBuffer();
     await dfu.sendFirmware(new Uint8Array(firmImage), (progress) => {
-      app.ports.updateResult.send(progress);
+      notifyUpdateProgress(progress);
     });
   } catch (e) {
     console.error(e);
-    app.ports.updateResult.send(-2);
+    notifyUpdateError(e.message);
 
     return;
   }
@@ -128,7 +150,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
 
       if (!file.ok) {
         console.error("failed to load file");
-        app.ports.updateResult.send(-2);
+        notifyUpdateError(e.message);
         return;
       }
 
@@ -162,7 +184,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
       json.config.keymap.locale = setup.isJis ? "JP" : "US";
     } catch (e) {
       console.error(e);
-      app.ports.updateResult.send(-2);
+      notifyUpdateError(e.message);
       return;
     }
   }
@@ -179,28 +201,34 @@ app.ports.updateConfig.subscribe(async (setup) => {
     serialReceivedStr += receivedPacket;
   });
 
-  await serial.open();
+  try {
+    await serial.open();
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+    return;
+  }
   serial.startReadLoop();
 
   if (setup.uploaded) {
     // send uploaded config
     try {
-      app.ports.updateResult.send(50);
       await sendConfig(setup.uploaded);
-      app.ports.updateResult.send(100);
+      notifyUpdateProgress(100);
     } catch (e) {
-      app.ports.updateResult.send(-2);
+      console.error(e);
+      notifyUpdateError(e.message);
     }
     return;
   }
 
   try {
     await sendConfig(JSON.stringify(json));
-    app.ports.updateResult.send(100);
+    notifyUpdateProgress(100);
   } catch (e) {
     console.error(e);
+    notifyUpdateError(e.message);
 
-    app.ports.updateResult.send(-2);
     return;
   }
 });
@@ -210,9 +238,7 @@ async function sendConfig(configString) {
   for (let index = 0; index < configString.length; index += 64) {
     await serial.writeString(configString.slice(index, index + 64));
     await sleep(30);
-    app.ports.updateResult.send(
-      Math.floor((index / configString.length) * 100)
-    );
+    notifyUpdateProgress(Math.floor((index / configString.length) * 100));
   }
 
   await serial.writeString("\0");

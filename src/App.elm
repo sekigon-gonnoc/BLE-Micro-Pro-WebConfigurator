@@ -39,7 +39,7 @@ port updateFirmware : E.Value -> Cmd msg
 port updateConfig : E.Value -> Cmd msg
 
 
-port updateResult : (Float -> msg) -> Sub msg
+port updateResult : (E.Value -> msg) -> Sub msg
 
 
 main =
@@ -62,7 +62,7 @@ type UpdateProgress
     | BootloaderActivated
     | Updating Float
     | Complete
-    | Error
+    | Error String
 
 
 type FirmwareType
@@ -129,6 +129,12 @@ type alias SetupRequirement =
     }
 
 
+type alias UpdateResult =
+    { progress : Float
+    , message : String
+    }
+
+
 flagDecoder : Decoder Flag
 flagDecoder =
     D.map4 Flag
@@ -149,19 +155,35 @@ flagDecoder =
         (field "applications" (D.list string))
 
 
-updateProgressEncode : Float -> UpdateProgress
-updateProgressEncode progress =
-    if progress >= 100 then
+updateProgressEncode : E.Value -> UpdateProgress
+updateProgressEncode json =
+    let
+        decoder =
+            D.map2 UpdateResult
+                (field "progress" D.float)
+                (field "message" D.string)
+
+        result =
+            Result.withDefault
+                (UpdateResult -2
+                    "Failed to decode message from updater"
+                )
+                (D.decodeValue
+                    decoder
+                    json
+                )
+    in
+    if result.progress >= 100 then
         Complete
 
-    else if progress >= 0 then
-        Updating progress
+    else if result.progress >= 0 then
+        Updating result.progress
 
-    else if progress >= -1 then
+    else if result.progress >= -1 then
         BootloaderActivated
 
     else
-        Error
+        Error result.message
 
 
 init : D.Value -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
@@ -240,7 +262,7 @@ subscriptions model =
     Sub.batch
         [ Navbar.subscriptions model.navbarState NavbarMsg
         , Carousel.subscriptions model.carouselState CarouselMsg
-        , updateResult UpdateResult
+        , updateResult UpdateResultMsg
         ]
 
 
@@ -266,7 +288,7 @@ type Msg
     | UpdateBootloader
     | UpdateApplication
     | UpdateConfig
-    | UpdateResult Float
+    | UpdateResultMsg E.Value
     | IncrementPeriphInterval Int
     | IncrementCentralInterval Int
     | IsSlave Bool
@@ -545,10 +567,10 @@ update msg model =
             in
             ( model, updateConfig cmd )
 
-        UpdateResult progress ->
+        UpdateResultMsg result ->
             ( { model
                 | updateProgress =
-                    updateProgressEncode progress
+                    updateProgressEncode result
               }
             , Cmd.none
             )
@@ -836,10 +858,10 @@ updateProgressInfo model =
                 [ Spacing.mt1 ]
                 [ text "Bootloader is activated. Please push the button again." ]
 
-        Error ->
+        Error message ->
             Alert.simpleDanger
                 [ Spacing.mt1 ]
-                [ text "Update Failed. Check log." ]
+                [ text (message ++ " Check log for datail.") ]
 
         Complete ->
             Alert.simpleSuccess
