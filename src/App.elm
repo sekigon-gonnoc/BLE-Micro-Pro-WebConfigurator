@@ -95,7 +95,8 @@ type alias Keyboard =
 
 
 type alias Flag =
-    { webSerialEnabled : Bool
+    { revision : String
+    , webSerialEnabled : Bool
     , keyboards : List Keyboard
     , bootloaders : List String
     , applications : List String
@@ -138,7 +139,8 @@ type alias UpdateResult =
 
 flagDecoder : Decoder Flag
 flagDecoder =
-    D.map4 Flag
+    D.map5 Flag
+        (field "revision" D.string)
         (field "webSerialEnabled" bool)
         (field "keyboards"
             (D.list
@@ -202,7 +204,7 @@ init flags url key =
                     flag
 
                 Err _ ->
-                    Flag False [] [] []
+                    Flag "" False [] [] []
       , needsHelp = False
       , setupRequirement =
             { keyboard = Keyboard "" [] [] False False
@@ -789,10 +791,14 @@ viewHome model =
     , Button.button
         [ Button.primary
         , Button.block
-        , Button.attrs (isDisplay (not model.needsHelp))
         , Button.onClick StartNavigation
         ]
         [ text "ナビゲーション付きでセットアップを開始する" ]
+    , div [ align "center", Spacing.mt3 ]
+        [ text <|
+            " revision: "
+                ++ model.appInfo.revision
+        ]
     ]
 
 

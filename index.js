@@ -8,6 +8,7 @@ const { Elm } = require("./src/App.elm");
 const app = Elm.App.init({
   node: document.getElementById("main"),
   flags: {
+    revision: process.env.REVISION,
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
     bootloaders: ["ble_micro_pro_bootloader_0_5_0"],

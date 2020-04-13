@@ -30,8 +30,8 @@
     "typescript": "^3.8.3"
   },
   "scripts": {
-    "build": "parcel build index.html --public-url .",
-    "start": "parcel start index.html --https",
+    "build": "export REVISION=$(git rev-parse --short HEAD);parcel build index.html --public-url .",
+    "start": "export REVISION=$(git rev-parse --short HEAD);parcel start index.html --https",
     "fmt": "prettier --write package.json src/*.js src/*.ts || elm-format src/*.elm"
   },
   "staticFiles": {
