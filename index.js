@@ -170,6 +170,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
         json.config.mode = "SINGLE";
       }
 
+      json.config.matrix.debounce = setup.debounce;
       json.config.matrix.is_left_hand = setup.isLeft ? 1 : 0;
 
       json.config.peripheral.max_interval = setup.periphInterval;

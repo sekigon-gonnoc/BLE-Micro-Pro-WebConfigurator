@@ -1,6 +1,7 @@
 export { keyboards };
 let keyboards = [
   { name: "7skb", layout: ["rev1"], keymap: [], split: true, lpme: true },
+  { name: "angel64", layout: ["rev1"], keymap: [], split: false, lpme: false },
   { name: "bat43", layout: [""], keymap: [], split: false, lpme: false },
   {
     name: "ble_micro_pro",
@@ -13,20 +14,23 @@ let keyboards = [
   { name: "claw44", layout: ["rev1"], keymap: [], split: true, lpme: true },
   { name: "cocoa40", layout: [""], keymap: [], split: true, lpme: true },
   { name: "crkbd", layout: ["rev1"], keymap: [], split: true, lpme: true },
+  { name: "dozen0", layout: [""], keymap: [], split: false, lpme: false },
+  { name: "ergo42", layout: [""], keymap: [], split: true, lpme: true },
   {
     name: "ergodash",
     layout: [
-      "rev1_layout_3key_2us",
       "rev1_layout_3key_1us",
       "rev1_layout_2key",
-      "rev1_layout_4key",
       "rev1_layout_4key_2u_inner",
+      "rev1_layout_3key_2us",
+      "rev1_layout_4key",
     ],
     keymap: [],
     split: true,
     lpme: true,
   },
   { name: "ergodash_mini", layout: [""], keymap: [], split: true, lpme: true },
+  { name: "helix", layout: ["5row"], keymap: [], split: true, lpme: true },
   {
     name: "lets_split",
     layout: ["rev2"],
@@ -50,15 +54,11 @@ let keyboards = [
   },
   {
     name: "runner3680",
-    layout: ["3x6", "3x7", "4x6", "4x8", "5x8", "4x7", "5x7", "3x8", "5x6"],
+    layout: ["4x8", "3x6", "5x6", "3x8", "4x6", "5x8", "3x7", "5x7", "4x7"],
     keymap: [],
     split: true,
     lpme: false,
   },
   { name: "treadstone48", layout: [""], keymap: [], split: false, lpme: false },
   { name: "zinc", layout: ["rev1"], keymap: [], split: true, lpme: true },
-  { name: "angel64", layout: ["rev1"], keymap: [], split: false, lpme: false },
-  { name: "ergo42", layout: [""], keymap: [], split: true, lpme: true },
-  { name: "helix", layout: ["5row"], keymap: [], split: true, lpme: true },
-  { name: "dozen0", layout: [""], keymap: [], split: false, lpme: false },
 ];

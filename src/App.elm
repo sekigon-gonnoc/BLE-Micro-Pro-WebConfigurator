@@ -124,6 +124,7 @@ type alias SetupRequirement =
     , isLeft : Bool
     , isJis : Bool
     , disableMsc : Bool
+    , debounce : Int
     , centralInterval : Int
     , periphInterval : Int
     }
@@ -210,6 +211,7 @@ init flags url key =
             , isLeft = True
             , isJis = False
             , disableMsc = False
+            , debounce = 1
             , centralInterval = 30
             , periphInterval = 30
             }
@@ -289,6 +291,7 @@ type Msg
     | UpdateApplication
     | UpdateConfig
     | UpdateResultMsg E.Value
+    | IncrementDebounce Int
     | IncrementPeriphInterval Int
     | IncrementCentralInterval Int
     | IsSlave Bool
@@ -575,6 +578,23 @@ update msg model =
             , Cmd.none
             )
 
+        IncrementDebounce step ->
+            let
+                debounce =
+                    model.setupRequirement.debounce + step
+
+                currentSetup =
+                    model.setupRequirement
+
+                newSetup =
+                    if debounce < 1 then
+                        { currentSetup | debounce = 1 }
+
+                    else
+                        { currentSetup | debounce = debounce }
+            in
+            ( { model | setupRequirement = newSetup }, Cmd.none )
+
         IncrementPeriphInterval step ->
             let
                 interval =
@@ -676,6 +696,7 @@ setupRequirementEncoder setup =
     , ( "useLpme", E.bool (useLpme setup.role) )
     , ( "isLeft", E.bool setup.isLeft )
     , ( "isJis", E.bool setup.isJis )
+    , ( "debounce", E.int setup.debounce )
     , ( "centralInterval", E.int setup.centralInterval )
     , ( "periphInterval", E.int setup.periphInterval )
     ]
@@ -1006,14 +1027,44 @@ viewEditConfig model =
             ]
             "Show keymap.json using JP_XX"
         , Grid.row
-            []
+            [ Row.attrs [ Spacing.mt1 ] ]
             [ Grid.col []
-                [ text "Connection inteval (Peripheral)"
+                [ text "Debounce "
                 , Button.button
                     [ Button.primary
                     , Button.disabled True
                     , Button.small
-                    , Button.attrs [ title "Connection interval with PC or master side" ]
+                    , Button.attrs
+                        [ title "Matrix scan debounce setting"
+                        , class "rounded-circle p-0"
+                        , style "width" "1.5rem"
+                        , style "height" "1.5rem"
+                        ]
+                    ]
+                    [ strong [] [ text "?" ] ]
+                ]
+            ]
+        , Grid.row [ Row.attrs [ Spacing.mb1 ] ]
+            [ Grid.col []
+                [ spinnerButton "+" (IncrementDebounce 1)
+                , node "text" [ Spacing.ml2, Spacing.mr2 ] [ text (String.fromInt model.setupRequirement.debounce) ]
+                , spinnerButton "-" (IncrementDebounce -1)
+                ]
+            ]
+        , Grid.row
+            []
+            [ Grid.col []
+                [ text "Connection inteval (Peripheral) "
+                , Button.button
+                    [ Button.primary
+                    , Button.disabled True
+                    , Button.small
+                    , Button.attrs
+                        [ title "Connection interval with PC or master side"
+                        , class "rounded-circle p-0"
+                        , style "width" "1.5rem"
+                        , style "height" "1.5rem"
+                        ]
                     ]
                     [ strong [] [ text "?" ] ]
                 ]
@@ -1028,12 +1079,17 @@ viewEditConfig model =
         , Grid.row [ Row.attrs (hidden (not (useSlave model.setupRequirement.role))) ]
             [ Grid.col
                 []
-                [ text "Connection inteval (Central)"
+                [ text "Connection inteval (Central) "
                 , Button.button
                     [ Button.primary
                     , Button.disabled True
                     , Button.small
-                    , Button.attrs [ title "Connection interval with Slave side" ]
+                    , Button.attrs
+                        [ title "Connection interval with Slave side"
+                        , class "rounded-circle p-0"
+                        , style "width" "1.5rem"
+                        , style "height" "1.5rem"
+                        ]
                     ]
                     [ strong [] [ text "?" ] ]
                 ]
