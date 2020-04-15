@@ -32,7 +32,7 @@
   "scripts": {
     "build": "export REVISION=$(git rev-parse --short HEAD);parcel build index.html --public-url .",
     "start": "export REVISION=$(git rev-parse --short HEAD);parcel start index.html --https",
-    "fmt": "prettier --write package.json src/*.js src/*.ts || elm-format src/*.elm"
+    "fmt": "prettier --write package.json src/*.js src/*.ts *.html || elm-format src/*.elm"
   },
   "staticFiles": {
     "staticPath": "static",
