@@ -34,7 +34,7 @@ with open('./src/keyboards.js', mode='w') as f:
             if len(layouts) == 0:
                 raise Exception(f"wrong file names in {directory}")
 
-            for layout in layouts:
+            for layout in sorted(layouts):
                 if layout != '':
                     layout = '_' + layout
 
@@ -52,7 +52,6 @@ with open('./src/keyboards.js', mode='w') as f:
                         f'{CONFIG_DIR}/{directory}/{directory}{layout}_config.json')
 
             f.write(
-                f'{{name:\'{directory}\',layout:{list(layouts)},keymap:[],split:{str(isSplit).lower()},lpme:{str(isLpmeAvailable).lower()}}},')
+                f'{{name:\'{directory}\',layout:{sorted(list(layouts))},keymap:[],split:{str(isSplit).lower()},lpme:{str(isLpmeAvailable).lower()}}},')
 
     f.write(']')
-
