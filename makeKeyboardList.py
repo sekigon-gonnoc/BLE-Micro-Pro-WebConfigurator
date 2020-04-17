@@ -15,7 +15,7 @@ def isExists(path):
 with open('./src/keyboards.js', mode='w') as f:
     f.write('export {keyboards};')
     f.write('let keyboards=[')
-    for directory in os.listdir(CONFIG_DIR):
+    for directory in sorted(os.listdir(CONFIG_DIR)):
         layouts = set()
         if os.path.isdir(f'{CONFIG_DIR}/{directory}'):
             configs = os.listdir(f'{CONFIG_DIR}/{directory}')

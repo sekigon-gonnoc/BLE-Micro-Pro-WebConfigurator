@@ -10,6 +10,13 @@ let keyboards = [
     split: false,
     lpme: false,
   },
+  {
+    name: "ble_micro_pro_split",
+    layout: [""],
+    keymap: [],
+    split: true,
+    lpme: true,
+  },
   { name: "choco60", layout: [""], keymap: [], split: true, lpme: true },
   { name: "claw44", layout: ["rev1"], keymap: [], split: true, lpme: true },
   { name: "cocoa40", layout: [""], keymap: [], split: true, lpme: true },
@@ -61,11 +68,4 @@ let keyboards = [
   },
   { name: "treadstone48", layout: [""], keymap: [], split: false, lpme: false },
   { name: "zinc", layout: ["rev1"], keymap: [], split: true, lpme: true },
-  {
-    name: "ble_micro_pro_split",
-    layout: [""],
-    keymap: [],
-    split: true,
-    lpme: true,
-  },
 ];
