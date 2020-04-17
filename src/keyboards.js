@@ -38,6 +38,7 @@ let keyboards = [
   },
   { name: "ergodash_mini", layout: [""], keymap: [], split: true, lpme: true },
   { name: "helix", layout: ["5row"], keymap: [], split: true, lpme: true },
+  { name: "kugel", layout: [""], keymap: [], split: false, lpme: false },
   {
     name: "lets_split",
     layout: ["rev2"],
