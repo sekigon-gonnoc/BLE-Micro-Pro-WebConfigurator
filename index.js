@@ -11,8 +11,16 @@ const app = Elm.App.init({
     revision: process.env.REVISION,
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
-    bootloaders: ["ble_micro_pro_bootloader_0_5_0"],
-    applications: ["ble_micro_pro_default_0_5_0", "kugel_default_0_5_0"]
+    bootloaders: [
+      "ble_micro_pro_bootloader_0_5_1",
+      "ble_micro_pro_bootloader_0_5_0"
+    ],
+    applications: [
+      "ble_micro_pro_default_0_5_1",
+      "ble_micro_pro_default_0_5_0",
+      "kugel_default_0_5_1",
+      "kugel_default_0_5_0"
+    ]
   }
 });
 
