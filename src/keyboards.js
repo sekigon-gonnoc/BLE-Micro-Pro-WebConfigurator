@@ -19,11 +19,11 @@ let keyboards = [
   {
     name: "ergodash",
     layout: [
-      "rev1_layout_3key_1us",
       "rev1_layout_2key",
-      "rev1_layout_4key_2u_inner",
+      "rev1_layout_3key_1us",
       "rev1_layout_3key_2us",
       "rev1_layout_4key",
+      "rev1_layout_4key_2u_inner",
     ],
     keymap: [],
     split: true,
@@ -54,11 +54,18 @@ let keyboards = [
   },
   {
     name: "runner3680",
-    layout: ["4x8", "3x6", "5x6", "3x8", "4x6", "5x8", "3x7", "5x7", "4x7"],
+    layout: ["3x6", "3x7", "3x8", "4x6", "4x7", "4x8", "5x6", "5x7", "5x8"],
     keymap: [],
     split: true,
     lpme: false,
   },
   { name: "treadstone48", layout: [""], keymap: [], split: false, lpme: false },
   { name: "zinc", layout: ["rev1"], keymap: [], split: true, lpme: true },
+  {
+    name: "ble_micro_pro_split",
+    layout: [""],
+    keymap: [],
+    split: true,
+    lpme: true,
+  },
 ];
