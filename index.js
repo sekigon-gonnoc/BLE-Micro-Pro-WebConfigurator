@@ -121,6 +121,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
   }
 
   console.log("update completed");
+  await serial.close();
 });
 
 app.ports.updateConfig.subscribe(async (setup) => {
@@ -220,6 +221,8 @@ app.ports.updateConfig.subscribe(async (setup) => {
     } catch (e) {
       console.error(e);
       notifyUpdateError(e.message);
+    } finally {
+      await serial.close();
     }
     return;
   }
@@ -230,7 +233,8 @@ app.ports.updateConfig.subscribe(async (setup) => {
   } catch (e) {
     console.error(e);
     notifyUpdateError(e.message);
-
+  } finally {
+    await serial.close();
     return;
   }
 });
