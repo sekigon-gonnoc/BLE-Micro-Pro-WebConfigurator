@@ -68,5 +68,6 @@ let keyboards = [
     lpme: false,
   },
   { name: "treadstone48", layout: [""], keymap: [], split: false, lpme: false },
+  { name: "uzu42", layout: ["rev1"], keymap: [], split: true, lpme: true },
   { name: "zinc", layout: ["rev1"], keymap: [], split: true, lpme: true },
 ];
