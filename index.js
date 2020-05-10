@@ -194,6 +194,11 @@ app.ports.updateConfig.subscribe(async (setup) => {
       json.config.central.min_interval = setup.centralInterval;
 
       json.config.keymap.locale = setup.isJis ? "JP" : "US";
+
+      if (!json.config.reserved) {
+        json.config.reserved = Array(8).fill(0);
+      }
+      json.config.reserved[2] = Math.floor(setup.autoSleep / 10);
     } catch (e) {
       console.error(e);
       notifyUpdateError(e.message);

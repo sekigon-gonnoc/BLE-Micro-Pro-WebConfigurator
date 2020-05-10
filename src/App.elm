@@ -128,6 +128,7 @@ type alias SetupRequirement =
     , debounce : Int
     , centralInterval : Int
     , periphInterval : Int
+    , autoSleep : Int
     }
 
 
@@ -216,6 +217,7 @@ init flags url key =
             , debounce = 1
             , centralInterval = 30
             , periphInterval = 30
+            , autoSleep = 0
             }
       , setupProcedure = []
       , carouselState = Carousel.initialState
@@ -294,6 +296,7 @@ type Msg
     | UpdateConfig
     | UpdateResultMsg E.Value
     | IncrementDebounce Int
+    | IncrementAutoSleep Int
     | IncrementPeriphInterval Int
     | IncrementCentralInterval Int
     | IsSlave Bool
@@ -597,6 +600,23 @@ update msg model =
             in
             ( { model | setupRequirement = newSetup }, Cmd.none )
 
+        IncrementAutoSleep step ->
+            let
+                autoSleep =
+                    model.setupRequirement.autoSleep + step
+
+                currentSetup =
+                    model.setupRequirement
+
+                newSetup =
+                    if autoSleep < 0 then
+                        { currentSetup | autoSleep = 0 }
+
+                    else
+                        { currentSetup | autoSleep = autoSleep }
+            in
+            ( { model | setupRequirement = newSetup }, Cmd.none )
+
         IncrementPeriphInterval step ->
             let
                 interval =
@@ -701,6 +721,7 @@ setupRequirementEncoder setup =
     , ( "debounce", E.int setup.debounce )
     , ( "centralInterval", E.int setup.centralInterval )
     , ( "periphInterval", E.int setup.periphInterval )
+    , ( "autoSleep", E.int setup.autoSleep )
     ]
 
 
@@ -1032,80 +1053,32 @@ viewEditConfig model =
             , Checkbox.id "print-jis"
             ]
             "Show keymap.json using JP_XX"
-        , Grid.row
-            [ Row.attrs [ Spacing.mt1 ] ]
-            [ Grid.col []
-                [ text "Debounce "
-                , Button.button
-                    [ Button.primary
-                    , Button.disabled True
-                    , Button.small
-                    , Button.attrs
-                        [ title "Matrix scan debounce setting"
-                        , class "rounded-circle p-0"
-                        , style "width" "1.5rem"
-                        , style "height" "1.5rem"
-                        ]
-                    ]
-                    [ strong [] [ text "?" ] ]
-                ]
-            ]
-        , Grid.row [ Row.attrs [ Spacing.mb1 ] ]
-            [ Grid.col []
-                [ spinnerButton "+" (IncrementDebounce 1)
-                , node "text" [ Spacing.ml2, Spacing.mr2 ] [ text (String.fromInt model.setupRequirement.debounce) ]
-                , spinnerButton "-" (IncrementDebounce -1)
-                ]
-            ]
-        , Grid.row
-            []
-            [ Grid.col []
-                [ text "Connection inteval (Peripheral) "
-                , Button.button
-                    [ Button.primary
-                    , Button.disabled True
-                    , Button.small
-                    , Button.attrs
-                        [ title "Connection interval with PC or master side"
-                        , class "rounded-circle p-0"
-                        , style "width" "1.5rem"
-                        , style "height" "1.5rem"
-                        ]
-                    ]
-                    [ strong [] [ text "?" ] ]
-                ]
-            ]
-        , Grid.row [ Row.attrs [ Spacing.mb1 ] ]
-            [ Grid.col []
-                [ spinnerButton "+" (IncrementPeriphInterval 5)
-                , node "text" [ Spacing.ml2, Spacing.mr2 ] [ text (String.fromInt model.setupRequirement.periphInterval ++ " ms") ]
-                , spinnerButton "-" (IncrementPeriphInterval -5)
-                ]
-            ]
-        , Grid.row [ Row.attrs (hidden (not (useSlave model.setupRequirement.role))) ]
-            [ Grid.col
-                []
-                [ text "Connection inteval (Central) "
-                , Button.button
-                    [ Button.primary
-                    , Button.disabled True
-                    , Button.small
-                    , Button.attrs
-                        [ title "Connection interval with Slave side"
-                        , class "rounded-circle p-0"
-                        , style "width" "1.5rem"
-                        , style "height" "1.5rem"
-                        ]
-                    ]
-                    [ strong [] [ text "?" ] ]
-                ]
-            ]
-        , Grid.row [ Row.attrs (Spacing.mb1 :: hidden (not (useSlave model.setupRequirement.role))) ]
-            [ Grid.col []
-                [ spinnerButton "+" (IncrementCentralInterval 5)
-                , node "text" [ Spacing.ml2, Spacing.mr2 ] [ text (String.fromInt model.setupRequirement.centralInterval ++ " ms") ]
-                , spinnerButton "-" (IncrementCentralInterval -5)
-                ]
+        , lableWithHelp "Debounce" "Matrix scan debounce setting"
+        , spinBox model.setupRequirement.debounce
+            ""
+            (IncrementDebounce 1)
+            (IncrementDebounce -1)
+        , lableWithHelp "AutoSleep" "Auto sleep timeout setting. Set 0 to disable"
+        , spinBox model.setupRequirement.autoSleep
+            " min."
+            (IncrementAutoSleep 10)
+            (IncrementAutoSleep -10)
+        , lableWithHelp "Connection inteval (Peripheral)" "Connection interval with PC or master side"
+        , spinBox model.setupRequirement.periphInterval
+            " ms"
+            (IncrementPeriphInterval 5)
+            (IncrementPeriphInterval -5)
+        , div
+            (hidden
+                (not (useSlave model.setupRequirement.role))
+            )
+            [ lableWithHelp
+                "Connection inteval (Central)"
+                "Connection interval with slave side"
+            , spinBox model.setupRequirement.centralInterval
+                " ms"
+                (IncrementCentralInterval 5)
+                (IncrementCentralInterval -5)
             ]
         ]
     , updateProgressInfo model
@@ -1146,14 +1119,43 @@ viewEditConfig model =
     ]
 
 
-spinnerButton : String -> Msg -> Html Msg
-spinnerButton str msg =
+spinBoxButton : String -> msg -> Html msg
+spinBoxButton str message =
     Button.button
         [ Button.outlineInfo
-        , Button.onClick msg
+        , Button.onClick message
         , Button.attrs [ style "width" "60px" ]
         ]
         [ strong [] [ text str ] ]
+
+
+lableWithHelp : String -> String -> Html msg
+lableWithHelp label help =
+    div [ Spacing.mt1 ]
+        [ text label
+        , Button.button
+            [ Button.primary
+            , Button.disabled True
+            , Button.small
+            , Button.attrs
+                [ title help
+                , class "rounded-circle p-0"
+                , style "width" "1.5rem"
+                , style "height" "1.5rem"
+                , style "margin-left" ".2rem"
+                ]
+            ]
+            [ strong [] [ text "?" ] ]
+        ]
+
+
+spinBox : Int -> String -> msg -> msg -> Html msg
+spinBox value unit increment decrement =
+    div [ Spacing.mb1 ]
+        [ spinBoxButton "+" increment
+        , node "text" [ Spacing.ml2, Spacing.mr2 ] [ text (String.fromInt value ++ unit) ]
+        , spinBoxButton "-" decrement
+        ]
 
 
 viewEditKeymap : Model -> List (Html Msg)
