@@ -22,7 +22,13 @@ let keyboards = [
   { name: "cocoa40", layout: [""], keymap: [], split: true, lpme: true },
   { name: "crkbd", layout: ["rev1"], keymap: [], split: true, lpme: true },
   { name: "dozen0", layout: [""], keymap: [], split: false, lpme: false },
-  { name: "ergo42", layout: [""], keymap: [], split: true, lpme: true },
+  {
+    name: "ergo42",
+    layout: ["rev1_layout_ortho_4x14"],
+    keymap: [],
+    split: true,
+    lpme: true,
+  },
   {
     name: "ergodash",
     layout: [
