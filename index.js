@@ -273,6 +273,6 @@ async function sendConfig(configString) {
   ) {
     return true;
   } else {
-    return Promis.reject(new Error("Failed to Update"));
+    return Promise.reject(new Error("Failed to Update"));
   }
 }
