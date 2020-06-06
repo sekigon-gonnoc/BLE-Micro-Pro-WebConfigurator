@@ -234,7 +234,7 @@ init flags url key =
 applicationList : Model -> List String
 applicationList model =
     filterOrAll
-        (String.toLower model.setupRequirement.keyboard.name)
+        (String.toLower <| Maybe.withDefault "ble_micro_pro" <| List.head <| String.split "_" model.setupRequirement.keyboard.name)
         model.appInfo.applications
 
 
