@@ -21,7 +21,7 @@ const app = Elm.App.init({
     applications: [
       "ble_micro_pro_default_0_7_0",
       "kugel_default_0_7_0",
-      "toybox_bmp_default_0_7_0",
+      "toybox_bmp_default_0_7_0-2",
       "ble_micro_pro_default_0_6_0",
       "ble_micro_pro_default_0_5_2",
       "ble_micro_pro_default_0_5_1",
@@ -29,6 +29,7 @@ const app = Elm.App.init({
       "kugel_default_0_6_0",
       "kugel_default_0_5_1",
       "kugel_default_0_5_0",
+      "toybox_bmp_default_0_7_0",
     ]
   }
 });
