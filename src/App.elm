@@ -8,7 +8,7 @@ import Bootstrap.Carousel.Slide as Slide
 import Bootstrap.Form as Form
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
-import Bootstrap.Form.Select as Select
+import Bootstrap.Form.Select as Select exposing (Item)
 import Bootstrap.Grid as Grid
 import Bootstrap.Grid.Col as Col
 import Bootstrap.Grid.Row as Row
@@ -932,23 +932,32 @@ progressSpinner model default =
             [ text default ]
 
 
+itemsFromList : List String -> List (Select.Item msg)
+itemsFromList list =
+    case list of
+        [] ->
+            [ Select.item [] [] ]
+
+        head :: rest ->
+            Select.item [ selected True ] [ text head ]
+                :: List.map
+                    (\n -> Select.item [] [ text n ])
+                    rest
+
+
 viewUpdateFirmware : Model -> FirmwareType -> List (Html Msg)
 viewUpdateFirmware model firmware =
     (case firmware of
         Bootloader ->
             [ text "Select bootloader version"
-            , Select.select [ Select.onChange SelectBootloader ] <|
-                List.map
-                    (\n -> Select.item [] [ text n ])
-                    (bootloaderList model)
+            , Select.select [ Select.id "bootloader-select", Select.onChange SelectBootloader ] <|
+                itemsFromList (bootloaderList model)
             ]
 
         Application ->
             [ text "Select application version"
-            , Select.select [ Select.onChange SelectApplication ] <|
-                List.map
-                    (\n -> Select.item [] [ text n ])
-                    (applicationList model)
+            , Select.select [ Select.id "application-select", Select.onChange SelectApplication ] <|
+                itemsFromList (applicationList model)
             ]
     )
         ++ [ disableMscCheckbox model
