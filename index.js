@@ -267,10 +267,12 @@ app.ports.updateConfig.subscribe(async (setup) => {
 async function sendConfig(configString) {
   await serial.writeString("\x03file config\n");
 
-  for (let index = 0; index < configString.length; index += 64) {
-    await serial.writeString(configString.slice(index, index + 64));
+  let configBytes = (new TextEncoder).encode(configString);
+
+  for (let index = 0; index < configBytes.length; index += 64) {
+    await serial.write(configBytes.slice(index, index + 64));
     await sleep(30);
-    notifyUpdateProgress(Math.floor((index / configString.length) * 100));
+    notifyUpdateProgress(Math.floor((index / configBytes.length) * 100));
   }
 
   await serial.writeString("\0");
