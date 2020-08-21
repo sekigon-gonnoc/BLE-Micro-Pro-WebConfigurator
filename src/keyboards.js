@@ -72,7 +72,7 @@ let keyboards = [
     layout: ["3x6", "3x7", "3x8", "4x6", "4x7", "4x8", "5x6", "5x7", "5x8"],
     keymap: [],
     split: true,
-    lpme: false,
+    lpme: true,
   },
   { name: "toybox", layout: [""], keymap: [], split: true, lpme: false },
   {
