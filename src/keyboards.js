@@ -47,6 +47,13 @@ let keyboards = [
   { name: "jisplit89", layout: ["rev1"], keymap: [], split: true, lpme: false },
   { name: "kugel", layout: [""], keymap: [], split: false, lpme: false },
   {
+    name: "leftover30",
+    layout: ["default"],
+    keymap: [],
+    split: false,
+    lpme: false,
+  },
+  {
     name: "lets_split",
     layout: ["rev2"],
     keymap: [],
@@ -82,7 +89,17 @@ let keyboards = [
     split: false,
     lpme: false,
   },
-  { name: "treadstone48", layout: [""], keymap: [], split: false, lpme: false },
+  {
+    name: "treadstone48",
+    layout: [
+      "rev1_layout_base_default",
+      "rev2_layout_base_default",
+      "rev2_layout_base_marksard",
+    ],
+    keymap: [],
+    split: false,
+    lpme: false,
+  },
   { name: "uzu42", layout: ["rev1"], keymap: [], split: true, lpme: true },
   { name: "zinc", layout: ["rev1"], keymap: [], split: true, lpme: true },
 ];
