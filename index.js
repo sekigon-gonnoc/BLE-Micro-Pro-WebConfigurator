@@ -12,6 +12,7 @@ const app = Elm.App.init({
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
     bootloaders: [
+      "ble_micro_pro_bootloader_0_8_0",
       "ble_micro_pro_bootloader_0_7_1",
       "ble_micro_pro_bootloader_0_7_0",
       "ble_micro_pro_bootloader_0_6_0",
@@ -19,19 +20,24 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_0_5_0"
     ],
     applications: [
+      "ble_micro_pro_default_0_8_0",
+      "kugel_default_0_8_0",
+      "toybox_bmp_default_0_8_0",
+      "keyboard_quantizer_bmp_default_0_8_0",
+      "crkbd_ecwl_bmp_default_0_8_0",
       "ble_micro_pro_default_0_7_1",
-      "kugel_default_0_7_1",
-      "toybox_bmp_default_0_7_1",
       "ble_micro_pro_default_0_7_0",
-      "kugel_default_0_7_0",
-      "toybox_bmp_default_0_7_0-2",
       "ble_micro_pro_default_0_6_0",
       "ble_micro_pro_default_0_5_2",
       "ble_micro_pro_default_0_5_1",
       "ble_micro_pro_default_0_5_0",
+      "kugel_default_0_7_1",
+      "kugel_default_0_7_0",
       "kugel_default_0_6_0",
       "kugel_default_0_5_1",
       "kugel_default_0_5_0",
+      "toybox_bmp_default_0_7_1",
+      "toybox_bmp_default_0_7_0-2",
       "toybox_bmp_default_0_7_0",
     ]
   }
