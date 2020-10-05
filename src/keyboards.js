@@ -82,6 +82,7 @@ let keyboards = [
     split: true,
     lpme: true,
   },
+  { name: "rect44", layout: [""], keymap: [], split: false, lpme: false },
   {
     name: "runner3680",
     layout: ["3x6", "3x7", "3x8", "4x6", "4x7", "4x8", "5x6", "5x7", "5x8"],
