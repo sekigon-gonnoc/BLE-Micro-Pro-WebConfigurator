@@ -32,7 +32,7 @@ class WebSerial {
     this.port = await navigator.serial.requestPort();
 
     try {
-      await this.port.open({ baudrate: 115200, buffersize: 81920 });
+      await this.port.open({ baudRate: 115200, buffersize: 81920 });
     } catch (e) {
       await this.port.close();
       return Promise.reject(e);
