@@ -25,8 +25,9 @@ with open('./src/keyboards.js', mode='w') as f:
 
             for config in configs:
                 config = config.replace(f'{directory}', '')
-                layout = re.search(
-                    r'^.*?(?=(_config|_master|_slave|_lpme))', config, flags=re.IGNORECASE)
+                layout = re.search(r'^.*?(?=(_config|_master|_slave|_lpme))',
+                                   config,
+                                   flags=re.IGNORECASE)
                 if layout != None:
                     layouts.add(layout.group(0).lstrip('_'))
 
@@ -40,18 +41,28 @@ with open('./src/keyboards.js', mode='w') as f:
 
                 if isSplit:
                     isExists(
-                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_master_left_config.json')
+                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_master_left_config.json'
+                    )
                     isExists(
-                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_slave_right_config.json')
+                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_slave_right_config.json'
+                    )
 
                     if isLpmeAvailable:
                         isExists(
-                            f'{CONFIG_DIR}/{directory}/{directory}{layout}_lpme_left_config.json')
+                            f'{CONFIG_DIR}/{directory}/{directory}{layout}_lpme_left_config.json'
+                        )
                 else:
                     isExists(
-                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_config.json')
+                        f'{CONFIG_DIR}/{directory}/{directory}{layout}_config.json'
+                    )
+
+            firmware = 'ble_micro_pro'
+            if os.path.exists(f'{CONFIG_DIR}/{directory}/firmware.txt'):
+                with open(f'{CONFIG_DIR}/{directory}/firmware.txt') as firm:
+                    firmware = firm.readline().rstrip()
 
             f.write(
-                f'{{name:\'{directory}\',layout:{sorted(list(layouts))},keymap:[],split:{str(isSplit).lower()},lpme:{str(isLpmeAvailable).lower()}}},')
+                f'{{name:\'{directory}\',layout:{sorted(list(layouts))},keymap:[],firmware:\'{firmware}\',split:{str(isSplit).lower()},lpme:{str(isLpmeAvailable).lower()}}},'
+            )
 
     f.write(']')

@@ -89,6 +89,7 @@ type alias Keyboard =
     { name : String
     , layout : List String
     , keymap : List String
+    , firmware : String
     , split : Bool
     , lpme : Bool
     }
@@ -145,11 +146,12 @@ flagDecoder =
         (field "webSerialEnabled" bool)
         (field "keyboards"
             (D.list
-                (D.map5
+                (D.map6
                     Keyboard
                     (field "name" string)
                     (field "layout" (D.list string))
                     (field "keymap" (D.list string))
+                    (field "firmware" string)
                     (field "split" bool)
                     (field "lpme" bool)
                 )
@@ -208,7 +210,7 @@ init flags url key =
                     Flag "" False [] [] []
       , needsHelp = False
       , setupRequirement =
-            { keyboard = Keyboard "" [] [] False False
+            { keyboard = Keyboard "" [] [] "" False False
             , layout = ""
             , role = SINGLE
             , isLeft = True
@@ -234,7 +236,7 @@ init flags url key =
 applicationList : Model -> List String
 applicationList model =
     filterOrAll
-        (String.toLower <| Maybe.withDefault "ble_micro_pro" <| List.head <| String.split "_" model.setupRequirement.keyboard.name)
+        model.setupRequirement.keyboard.firmware
         model.appInfo.applications
 
 
@@ -397,7 +399,7 @@ update msg model =
             let
                 keyboard =
                     Maybe.withDefault
-                        (Keyboard "" [] [] False False)
+                        (Keyboard "" [] [] "" False False)
                         (List.head
                             (List.filter (\n -> n.name == name)
                                 model.appInfo.keyboards
