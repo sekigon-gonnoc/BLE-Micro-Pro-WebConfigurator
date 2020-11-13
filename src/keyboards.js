@@ -9,6 +9,22 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "7splus",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: false,
+  },
+  {
+    name: "ajisai74",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
+  },
+  {
     name: "angel64",
     layout: ["rev1"],
     keymap: [],
