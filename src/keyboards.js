@@ -247,6 +247,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "pistachio_mp",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "rect44",
     layout: [""],
     keymap: [],
