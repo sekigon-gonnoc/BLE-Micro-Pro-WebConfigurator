@@ -23,11 +23,11 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_0_5_0"
     ],
     applications: [
-      "ble_micro_pro_default_0_9_0",
-      "crkbd_ecwl_bmp_default_0_9_0",
-      "keyboard_quantizer_bmp_default_0_9_0",
-      "kugel_default_0_9_0",
-      "toybox_bmp_default_0_9_0",
+      "ble_micro_pro_default_0_9_1",
+      "crkbd_ecwl_bmp_default_0_9_1",
+      "keyboard_quantizer_bmp_default_0_9_1",
+      "kugel_default_0_9_1",
+      "toybox_bmp_default_0_9_1",
       "ble_micro_pro_default_0_8_0",
       "ble_micro_pro_default_0_7_1",
       "ble_micro_pro_default_0_7_0",
