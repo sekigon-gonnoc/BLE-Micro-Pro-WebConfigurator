@@ -199,6 +199,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "majistic",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
+  },
+  {
     name: "mint60",
     layout: [""],
     keymap: [],
