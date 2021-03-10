@@ -741,7 +741,7 @@ view model =
                         []
 
                     else
-                        [ Alert.simpleDanger [] [ text "Web serial is unavailable. Use chrome 80 or later, and set the #enable-experimental-web-platform-features flag in chrome://flags" ] ]
+                        [ Alert.simpleDanger [] [ text "Web serial is unavailable. Use chrome 89 or later. If you use older versions, set the #enable-experimental-web-platform-features flag in chrome://flags" ] ]
                    )
                 ++ (case model.url.fragment of
                         Just "/home" ->
