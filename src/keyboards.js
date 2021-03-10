@@ -199,6 +199,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "lunakey_mini",
+    layout: ["layout_split_3x6_4"],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
+  },
+  {
     name: "majistic",
     layout: [""],
     keymap: [],
