@@ -968,7 +968,7 @@ viewUpdateFirmware model firmware =
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication ] <|
                 itemsFromList (applicationList model)
-            , updateProgressInfo model <| Just "From v0.10.0, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
+            , updateProgressInfo model <| Just "From v0.9.4, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
             ]
     )
         ++ [ disableMscCheckbox model
