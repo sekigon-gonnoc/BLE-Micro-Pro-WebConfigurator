@@ -900,8 +900,8 @@ isDisplay bool =
         [ Display.none ]
 
 
-updateProgressInfo : Model -> Html Msg
-updateProgressInfo model =
+updateProgressInfo : Model -> Maybe String -> Html Msg
+updateProgressInfo model default =
     case model.updateProgress of
         BootloaderActivated ->
             Alert.simpleInfo
@@ -919,9 +919,16 @@ updateProgressInfo model =
                 [ text "Update Succeeded. Go next step." ]
 
         _ ->
-            Alert.simpleInfo
-                [ Spacing.mt1, style "visibility" "hidden" ]
-                [ text "hidden" ]
+            case default of
+                Just x ->
+                    Alert.simpleWarning
+                        [ Spacing.mt1 ]
+                        [ text x ]
+
+                _ ->
+                    Alert.simpleWarning
+                        [ Spacing.mt1, style "visibility" "hidden" ]
+                        [ text "hidden" ]
 
 
 progressSpinner : Model -> String -> List (Html Msg)
@@ -954,16 +961,17 @@ viewUpdateFirmware model firmware =
             [ text "Select bootloader version"
             , Select.select [ Select.id "bootloader-select", Select.onChange SelectBootloader ] <|
                 itemsFromList (bootloaderList model)
+            , updateProgressInfo model Nothing
             ]
 
         Application ->
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication ] <|
                 itemsFromList (applicationList model)
+            , updateProgressInfo model <| Just "From v0.10.0, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
             ]
     )
         ++ [ disableMscCheckbox model
-           , updateProgressInfo model
            , Button.button
                 [ Button.primary
                 , Button.block
@@ -1092,7 +1100,7 @@ viewEditConfig model =
                 (IncrementCentralInterval -5)
             ]
         ]
-    , updateProgressInfo model
+    , updateProgressInfo model Nothing
     , Button.button
         [ Button.primary
         , Button.block
