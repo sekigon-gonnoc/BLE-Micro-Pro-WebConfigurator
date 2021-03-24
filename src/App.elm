@@ -1179,7 +1179,10 @@ spinBox value unit increment decrement =
 
 viewEditKeymap : Model -> List (Html Msg)
 viewEditKeymap model =
-    [ a [ href "https://sekigon-gonnoc.github.io/qmk_configurator", target "_blank" ] [ text "Move to QMK Configurator" ]
+    [ text "Use "
+    , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
+    , text " or "
+    , a [ href "https://sekigon-gonnoc.github.io/qmk_configurator", target "_blank" ] [ text "QMK Configurator for BLE Micro Pro" ]
     ]
 
 
