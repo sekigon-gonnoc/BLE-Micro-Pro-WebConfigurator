@@ -134,6 +134,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
   let is_dfu = false;
   try {
+    console.log("send dfu wake up command");
     await serial.writeString("\x03\ndfu\n\xc0");
   } catch (e) {
     console.error(e);
@@ -146,6 +147,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
   await sleep(100);
 
   try {
+    console.log("check dfu");
     is_dfu = await dfu.checkIntegrity();
     if (!is_dfu) {
       console.error("dfu not found");

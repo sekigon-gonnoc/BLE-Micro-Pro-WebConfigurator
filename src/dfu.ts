@@ -136,9 +136,14 @@ class DfuBootloader {
     return new Promise((resolve: any) => setTimeout(resolve, ms));
   }
 
-  async waitReceive() {
-    while (this.received == false) {
+  async waitReceive(timeout: number = 500) {
+    while (this.received == false && timeout > 0) {
       await this.sleep(1);
+      timeout--;
+    }
+
+    if (timeout == 0) {
+      throw new Error("DFU command timeout");
     }
 
     if (this.received == true) {
