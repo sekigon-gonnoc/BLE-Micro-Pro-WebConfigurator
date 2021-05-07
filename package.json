@@ -10,8 +10,7 @@
     "crc-32": "^1.2.0",
     "jquery": "^3.6.0",
     "js": "^0.1.0",
-    "popper.js": "^1.16.0",
-    "src": "^1.1.2"
+    "popper.js": "^1.16.0"
   },
   "devDependencies": {
     "@babel/plugin-proposal-class-properties": "^7.13.0",
