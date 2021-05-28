@@ -331,6 +331,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "wings42",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
+  },
+  {
     name: "zinc",
     layout: ["rev1"],
     keymap: [],
