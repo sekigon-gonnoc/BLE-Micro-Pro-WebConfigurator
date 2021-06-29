@@ -23,7 +23,7 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_0_7_0",
       "ble_micro_pro_bootloader_0_6_0",
       "ble_micro_pro_bootloader_0_5_1",
-      "ble_micro_pro_bootloader_0_5_0"
+      "ble_micro_pro_bootloader_0_5_0",
     ],
     applications: [
       "ble_micro_pro_default_0_9_5",
@@ -66,8 +66,8 @@ const app = Elm.App.init({
       "toybox_bmp_default_0_7_1",
       "toybox_bmp_default_0_7_0-2",
       "toybox_bmp_default_0_7_0",
-    ]
-  }
+    ],
+  },
 });
 
 const serial = new WebSerial(128, 5);
@@ -302,7 +302,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
 async function sendConfig(configString) {
   await serial.writeString("\x03file config\n");
 
-  let configBytes = (new TextEncoder).encode(configString);
+  let configBytes = new TextEncoder().encode(configString);
 
   for (let index = 0; index < configBytes.length; index += 64) {
     await serial.write(configBytes.slice(index, index + 64));

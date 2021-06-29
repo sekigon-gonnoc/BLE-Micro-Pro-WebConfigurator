@@ -33,6 +33,14 @@ let keyboards = [
     lpme: false,
   },
   {
+    name: "angel70",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "bat43",
     layout: [""],
     keymap: [],
@@ -277,6 +285,14 @@ let keyboards = [
     firmware: "ble_micro_pro",
     split: false,
     lpme: false,
+  },
+  {
+    name: "rabbit_capture_plan",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
   },
   {
     name: "rect44",
