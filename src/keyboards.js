@@ -279,6 +279,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "owl8",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "pistachio_mp",
     layout: [""],
     keymap: [],
