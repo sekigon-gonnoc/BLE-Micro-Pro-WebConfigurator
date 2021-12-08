@@ -151,6 +151,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "gl516",
+    layout: ["a52gl", "j73gl", "n51gl"],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "helix",
     layout: ["5row"],
     keymap: [],
@@ -168,6 +176,14 @@ let keyboards = [
   },
   {
     name: "keyfuda01_tenkey",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
+    name: "keyfuda02_media",
     layout: [""],
     keymap: [],
     firmware: "ble_micro_pro",
@@ -317,6 +333,14 @@ let keyboards = [
     firmware: "ble_micro_pro",
     split: true,
     lpme: true,
+  },
+  {
+    name: "stickey4",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
   },
   {
     name: "toybox",
