@@ -152,7 +152,7 @@ let keyboards = [
   },
   {
     name: "gl516",
-    layout: ["a52gl", "j73gl", "n51gl"],
+    layout: ["9674gl", "a52gl", "j73gl", "n51gl"],
     keymap: [],
     firmware: "ble_micro_pro",
     split: false,
