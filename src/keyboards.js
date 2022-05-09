@@ -239,6 +239,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "minizone",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "mint60",
     layout: [""],
     keymap: [],
