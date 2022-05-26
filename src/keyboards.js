@@ -327,6 +327,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "radialex",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "rect44",
     layout: [""],
     keymap: [],
