@@ -113,6 +113,22 @@ let keyboards = [
     lpme: false,
   },
   {
+    name: "duplex_zone",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
+    name: "endzone34",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "ergo42",
     layout: ["rev1_layout_ortho_4x14"],
     keymap: [],
