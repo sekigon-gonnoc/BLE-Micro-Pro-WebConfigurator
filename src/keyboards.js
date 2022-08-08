@@ -207,6 +207,22 @@ let keyboards = [
     lpme: false,
   },
   {
+    name: "keyfuda03_stick",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
+    name: "keyfuda04_grid",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "kugel",
     layout: [""],
     keymap: [],
