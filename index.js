@@ -17,6 +17,7 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_0_9_4",
     ],
     applications: [
+      "ble_micro_pro_default_0_11_3",
       "ble_micro_pro_default_0_11_2",
       "crkbd_ecwl_bmp_default_0_11_2",
       "kugel_default_0_11_2",
