@@ -249,7 +249,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
   if (setup.uploaded) {
     // send uploaded config
     try {
-      await sendConfig(setup.uploaded);
+      await sendConfig("config", 0, setup.uploaded);
       notifyUpdateProgress(100);
     } catch (e) {
       console.error(e);
@@ -261,8 +261,31 @@ app.ports.updateConfig.subscribe(async (setup) => {
   }
 
   try {
-    await sendConfig(JSON.stringify(json));
+    await sendConfig("config", 0, JSON.stringify(json));
     notifyUpdateProgress(100);
+
+    const file = await fetch(`config/${setup.keyboard}/ENCODER.JSN`);
+
+    if (file.ok) {
+      let j = await file
+        .json()
+        .then((j) => {
+          j = JSON.stringify(j);
+          return j;
+        })
+        .catch(() => {
+          console.log("no file");
+          return null;
+        });
+
+      if (j) {
+        console.log(j);
+        await sendConfig("encoder", 5, j);
+        notifyUpdateProgress(100);
+      } else {
+        await serial.writeString(`\nremove 5\n`);
+      }
+    }
   } catch (e) {
     console.error(e);
     notifyUpdateError(e.message);
@@ -271,8 +294,9 @@ app.ports.updateConfig.subscribe(async (setup) => {
     return;
   }
 });
-async function sendConfig(configString) {
-  await serial.writeString("\x03file config\n");
+async function sendConfig(key, fileId, configString) {
+  serialReceivedStr = "";
+  await serial.writeString(`\x03file ${key}\n`);
 
   let configBytes = new TextEncoder().encode(configString);
 
@@ -283,7 +307,7 @@ async function sendConfig(configString) {
   }
 
   await serial.writeString("\0");
-  await serial.writeString("\nupdate 0\n");
+  await serial.writeString(`\nupdate ${fileId}\n`);
   await sleep(100);
   if (
     !serialReceivedStr.includes("Failed") &&
