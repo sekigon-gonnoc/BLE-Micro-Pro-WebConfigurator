@@ -264,7 +264,12 @@ app.ports.updateConfig.subscribe(async (setup) => {
     await sendConfig("config", 0, JSON.stringify(json));
     notifyUpdateProgress(100);
 
-    const file = await fetch(`config/${setup.keyboard}/ENCODER.JSN`);
+    const filename =
+      setup.layout == ""
+        ? `config/${setup.keyboard}/${setup.keyboard}_encoder.json`
+        : `config/${setup.keyboard}/${setup.keyboard}_${setup.layout}_encoder.json`;
+
+    const file = await fetch(filename);
 
     if (file.ok) {
       let j = await file
