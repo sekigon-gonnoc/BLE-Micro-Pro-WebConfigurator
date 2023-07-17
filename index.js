@@ -18,6 +18,7 @@ const app = Elm.App.init({
     ],
     applications: [
       "ble_micro_pro_default_0_11_3",
+      "ble_micro_pro_safemode_0_11_3",
       "ble_micro_pro_default_0_11_2",
       "crkbd_ecwl_bmp_default_0_11_2",
       "kugel_default_0_11_2",
