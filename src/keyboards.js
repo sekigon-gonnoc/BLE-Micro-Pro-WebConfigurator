@@ -145,6 +145,14 @@ let keyboards = [
     lpme: true,
   },
   {
+    name: "ergo68",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: true,
+    lpme: true,
+  },
+  {
     name: "ergoarrows",
     layout: [""],
     keymap: [],
