@@ -399,6 +399,14 @@ let keyboards = [
     lpme: false,
   },
   {
+    name: "primer61",
+    layout: [""],
+    keymap: [],
+    firmware: "ble_micro_pro",
+    split: false,
+    lpme: false,
+  },
+  {
     name: "primer79",
     layout: [""],
     keymap: [],
