@@ -11,9 +11,13 @@ const app = Elm.App.init({
     revision: process.env.REVISION,
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
-    bootloaders: ["ble_micro_pro_bootloader_0_11_2"],
+    bootloaders: [
+      "ble_micro_pro_bootloader_0_11_2",
+      "ble_micro_pro_bootloader_1_0_0_rc",
+    ],
     applications: [
       "ble_micro_pro_default_0_11_3",
+      "ble_micro_pro_vial_1_0_0_rc",
       "ble_micro_pro_safemode_0_11_3",
       "crkbd_ecwl_bmp_default_0_11_2",
       "kugel_default_0_11_2",
