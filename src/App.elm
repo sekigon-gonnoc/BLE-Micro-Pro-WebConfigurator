@@ -378,8 +378,6 @@ update msg model =
                 | url = url
                 , carouselState = Carousel.toSlide 0 model.carouselState
                 , updateProgress = None
-                -- , bootloader = Nothing
-                -- , application = Nothing
               }
             , Cmd.none
             )
@@ -947,12 +945,11 @@ itemsFromList list =
         [] ->
             [ Select.item [] [] ]
 
-        head :: rest ->
-            Select.item [ selected True] [ text "test" ] :
-            Select.item [ ] [ text head ]
+        _ :: _ ->
+            Select.item [] []
                 :: List.map
-                    (\n -> Select.item [] [ text n ])
-                    rest
+                    (\n -> Select.item [ value n ] [ text n ])
+                    list
 
 
 viewUpdateFirmware : Model -> FirmwareType -> List (Html Msg)
@@ -960,14 +957,14 @@ viewUpdateFirmware model firmware =
     (case firmware of
         Bootloader ->
             [ text "Select bootloader version"
-            , Select.select [ Select.id "bootloader-select", Select.onChange SelectBootloader ] <|
+            , Select.select [ Select.id "bootloader-select", Select.onChange SelectBootloader, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.bootloader ] ] <|
                 itemsFromList (bootloaderList model)
             , updateProgressInfo model Nothing
             ]
 
         Application ->
             [ text "Select application version"
-            , Select.select [ Select.id "application-select", Select.onChange SelectApplication ] <|
+            , Select.select [ Select.id "application-select", Select.onChange SelectApplication, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.application ] ] <|
                 itemsFromList (applicationList model)
             , updateProgressInfo model <| Just "From v0.9.4, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
             ]
@@ -1026,7 +1023,7 @@ viewUpdateApp model =
 viewEditConfig : Model -> List (Html Msg)
 viewEditConfig model =
     [ text "Select keyboard"
-    , Select.select [ Select.onChange SelectKeyboard ] <|
+    , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
         List.map
             (\n -> Select.item [] [ text n ])
             (filterOrAll
