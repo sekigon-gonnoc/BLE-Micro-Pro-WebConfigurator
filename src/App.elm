@@ -378,8 +378,8 @@ update msg model =
                 | url = url
                 , carouselState = Carousel.toSlide 0 model.carouselState
                 , updateProgress = None
-                , bootloader = Nothing
-                , application = Nothing
+                -- , bootloader = Nothing
+                -- , application = Nothing
               }
             , Cmd.none
             )
@@ -948,7 +948,8 @@ itemsFromList list =
             [ Select.item [] [] ]
 
         head :: rest ->
-            Select.item [ selected True ] [ text head ]
+            Select.item [ selected True] [ text "test" ] :
+            Select.item [ ] [ text head ]
                 :: List.map
                     (\n -> Select.item [] [ text n ])
                     rest
