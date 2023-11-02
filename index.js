@@ -13,7 +13,7 @@ const app = Elm.App.init({
     keyboards: keyboards,
     bootloaders: [
       "ble_micro_pro_bootloader_0_11_2",
-      "ble_micro_pro_bootloader_1_0_0_rc",
+      "ble_micro_pro_bootloader_1_0_1_rc",
     ],
     applications: [
       "ble_micro_pro_default_0_11_3",
