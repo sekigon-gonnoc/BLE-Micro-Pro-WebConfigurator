@@ -4,7 +4,7 @@
 import os
 import re
 
-CONFIG_DIR = './static/config'
+CONFIG_DIR = './public/config'
 
 
 def isExists(path):

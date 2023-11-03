@@ -782,7 +782,7 @@ viewHome model =
         |> Carousel.withControls
         |> Carousel.withIndicators
         |> Carousel.slides
-            [ Slide.config [] (Slide.image [] "./assets/ble_micro_pro.svg")
+            [ Slide.config [] (Slide.image [] "assets/ble_micro_pro.svg")
             ]
         |> Carousel.view model.carouselState
     , Button.linkButton

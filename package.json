@@ -1,7 +1,6 @@
 {
   "name": "BLE-Micro-Pro-WebConfigurator.priv",
   "version": "1.0.0",
-  "main": "index.js",
   "repository": "git@github.com:sekigon-gonnoc/BLE-Micro-Pro-WebConfigurator.priv.git",
   "author": "sekigon-gonnoc <43873124+sekigon-gonnoc@users.noreply.github.com>",
   "license": "MIT",
@@ -13,28 +12,19 @@
     "popper.js": "^1.16.0"
   },
   "devDependencies": {
-    "@babel/plugin-proposal-class-properties": "^7.13.0",
-    "babel-core": "^6.26.3",
-    "babel-plugin-transform-class-properties": "^6.24.1",
-    "babel-preset-env": "^1.7.0",
-    "elm": "^0.19.1-5",
-    "elm-hot": "^1.1.6",
-    "eslint": "^7.22.0",
-    "eslint-config-prettier": "^8.1.0",
-    "eslint-plugin-prettier": "^3.3.1",
-    "node-elm-compiler": "^5.0.4",
-    "parcel-bundler": "^1.12.5",
-    "parcel-plugin-static-files-copy": "^2.6.0",
-    "prettier": "^2.2.1",
-    "typescript": "^4.2.3"
+    "elm-review": "^2.10.3",
+    "elm-tooling": "^1.15.0",
+    "prettier": "^3.0.3",
+    "typescript": "^4.2.3",
+    "vite": "^4.5.0",
+    "vite-plugin-elm": "^2.8.0"
   },
   "scripts": {
-    "build": "export REVISION=$(git rev-parse --short HEAD);parcel build index.html --public-url .",
-    "start": "export REVISION=$(git rev-parse --short HEAD);parcel start index.html --https",
-    "fmt": "prettier --write package.json src/*.js src/*.ts *.html || elm-format src/*.elm"
-  },
-  "staticFiles": {
-    "staticPath": "static",
-    "watcherGlob": "**"
+    "postinstall": "elm-tooling install",
+    "dev": "export VITE_REVISION=$(git rev-parse --short HEAD);vite",
+    "prebuild": "elm-tooling install",
+    "build": "export VITE_REVISION=$(git rev-parse --short HEAD);vite build",
+    "serve": "vite preview",
+    "fmt": "prettier --write package.json src/*.js src/*.ts *.html || elm-review"
   }
 }

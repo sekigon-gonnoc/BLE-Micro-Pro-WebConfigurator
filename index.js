@@ -2,13 +2,12 @@ import { WebSerial } from "./src/webSerial";
 import { DfuBootloader } from "./src/dfu";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { keyboards } from "./src/keyboards";
-
-const { Elm } = require("./src/App.elm");
+import { Elm } from "./src/App.elm";
 
 const app = Elm.App.init({
   node: document.getElementById("main"),
   flags: {
-    revision: process.env.REVISION,
+    revision: "0",
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
     bootloaders: [
