@@ -72,7 +72,7 @@ class WebSerial {
           console.log(`serial received: ${value.byteLength}byte`);
 
           if (this.receiveCallback) {
-            this.receiveCallback(value);
+            await this.receiveCallback(value);
           }
         }
 
@@ -108,7 +108,7 @@ class WebSerial {
 
   async write(msg: Uint8Array) {
     if (this.writable == null) {
-      return;
+      throw new Error("Port is not available");
     }
 
     const writer = this.writable.getWriter();
@@ -143,11 +143,15 @@ class WebSerial {
       this.closeCallback();
     }
 
+    this.receiveCallback = null;
+    this.closeCallback = null;
+
     if (this.port) {
       try {
         await this.port.close();
         this.port = null;
         this._connected = false;
+        this.errorCallback = null;
       } catch (e) {
         console.error(e);
       }

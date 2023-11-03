@@ -1,5 +1,6 @@
 import { WebSerial } from "./src/webSerial";
 import { DfuBootloader } from "./src/dfu";
+import { Xmodem } from "./src/xmodem";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { keyboards } from "./src/keyboards";
 import { Elm } from "./src/App.elm";
@@ -137,151 +138,42 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
 app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
+  const fileName =
+    setup.isSplit ?
+      setup.isSlave ?
+        setup.useLpme ?
+          (`config/${setup.keyboard}_lpme_config.bin`)
+          :
+          (`config/${setup.keyboard}_master_config.bin`)
+        :
+        (`config/${setup.keyboard}_slave_config.bin`)
+      :
+      (`config/${setup.keyboard}_single_config.bin`)
 
-  let json;
-  if (!setup.uploaded) {
+  const file = await fetch(fileName)
+  if (file.ok) {
     try {
-      let configName = `config/${setup.keyboard}/${setup.keyboard}`;
-
-      if (setup.layout != "") {
-        configName += `_${setup.layout}`;
-      }
-
-      if (setup.useLpme) {
-        configName += "_lpme_left_config.json";
-      } else if (setup.isSplit) {
-        if (setup.isLeft) {
-          configName += "_master_left_config.json";
-        } else {
-          configName += "_slave_right_config.json";
-        }
-      } else {
-        configName += "_config.json";
-      }
-
-      const file = await fetch(`${configName}`);
-
-      if (!file.ok) {
-        console.error("failed to load file");
-        notifyUpdateError(e.message);
-        return;
-      }
-
-      json = await file.json();
-
-      if (setup.isSplit) {
-        if (setup.useLpme) {
-          json.config.mode = "SINGLE";
-        } else {
-          if (setup.isSlave) {
-            json.config.mode = "SPLIT_SLAVE";
-          } else {
-            json.config.mode = "SPLIT_MASTER";
-          }
-        }
-      } else {
-        json.config.mode = "SINGLE";
-      }
-
-      json.config.matrix.debounce = setup.debounce;
-      json.config.matrix.is_left_hand = setup.isLeft ? 1 : 0;
-
-      json.config.peripheral.max_interval = setup.periphInterval;
-      json.config.peripheral.min_interval = setup.periphInterval;
-      json.config.peripheral.slave_latency = Math.floor(
-        500 / setup.periphInterval
-      );
-
-      json.config.central.max_interval = setup.centralInterval;
-      json.config.central.min_interval = setup.centralInterval;
-
-      json.config.keymap.locale = setup.isJis ? "JP" : "US";
-
-      if (!json.config.reserved) {
-        json.config.reserved = Array(8).fill(0);
-      }
-      json.config.reserved[2] = Math.floor(setup.autoSleep / 10);
+      await serial.open();
+      serial.startReadLoop();
     } catch (e) {
       console.error(e);
       notifyUpdateError(e.message);
       return;
     }
-  }
 
-  if (serial.connected) {
-    try {
-      await serial.close();
-    } catch (e) {}
-  }
+    await serial.writeString("xmodem\n");
 
-  serialReceivedStr = "";
-  serial.setReceiveCallback((array) => {
-    let receivedPacket = String.fromCharCode.apply(null, array);
-    serialReceivedStr += receivedPacket;
-  });
+    const xmodem = new Xmodem(serial, new Uint8Array(await file.arrayBuffer()));
 
-  try {
-    await serial.open();
-  } catch (e) {
-    console.error(e);
-    notifyUpdateError(e.message);
-    return;
-  }
-  serial.startReadLoop();
-
-  if (setup.uploaded) {
-    // send uploaded config
-    try {
-      await sendConfig("config", 0, setup.uploaded);
-      notifyUpdateProgress(100);
-    } catch (e) {
-      console.error(e);
-      notifyUpdateError(e.message);
-    } finally {
-      await serial.close();
+    while (xmodem.getProgress() < 100.0) {
+      await sleep(30);
+      notifyUpdateProgress(Math.floor(xmodem.getProgress()));
     }
-    return;
-  }
-
-  try {
-    await sendConfig("config", 0, JSON.stringify(json));
-    notifyUpdateProgress(100);
-
-    const filename =
-      setup.layout == ""
-        ? `config/${setup.keyboard}/${setup.keyboard}_encoder.json`
-        : `config/${setup.keyboard}/${setup.keyboard}_${setup.layout}_encoder.json`;
-
-    const file = await fetch(filename);
-
-    if (file.ok) {
-      let j = await file
-        .json()
-        .then((j) => {
-          j = JSON.stringify(j);
-          return j;
-        })
-        .catch(() => {
-          console.log("no file");
-          return null;
-        });
-
-      if (j) {
-        console.log(j);
-        await sendConfig("encoder", 5, j);
-        notifyUpdateProgress(100);
-      } else {
-        await serial.writeString(`\nremove 5\n`);
-      }
-    }
-  } catch (e) {
-    console.error(e);
-    notifyUpdateError(e.message);
-  } finally {
-    await serial.close();
-    return;
+  } else {
+    notifyUpdateError(`${file.status} ${file.statusText}. `);
   }
 });
+
 async function sendConfig(key, fileId, configString) {
   serialReceivedStr = "";
   await serial.writeString(`\x03file ${key}\n`);
