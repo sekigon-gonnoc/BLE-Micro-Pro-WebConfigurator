@@ -124,7 +124,6 @@ type BlemRole
 
 type alias SetupRequirement =
     { keyboard : Keyboard
-    , layout : String
     , role : BlemRole
     , isLeft : Bool
     , isJis : Bool
@@ -214,7 +213,6 @@ init flags url key =
       , needsHelp = False
       , setupRequirement =
             { keyboard = Keyboard "" [] [] "" False False
-            , layout = ""
             , role = SINGLE
             , isLeft = True
             , isJis = False
@@ -250,20 +248,6 @@ bootloaderList model =
         model.appInfo.bootloaders
 
 
-keyboardLayoutList : Model -> List String
-keyboardLayoutList model =
-    if
-        model.needsHelp
-            && List.length model.setupRequirement.keyboard.layout
-            > 1
-    then
-        model.setupRequirement.layout
-            :: model.setupRequirement.keyboard.layout
-
-    else
-        model.setupRequirement.keyboard.layout
-
-
 
 -- SUBSCRIPTIONS
 
@@ -288,7 +272,6 @@ type Msg
     | CarouselMsg Carousel.Msg
     | StartNavigation
     | SelectKeyboard String
-    | SelectLayout String
     | SelectBootloader String
     | SelectApplication String
     | SetProceduer
@@ -421,25 +404,8 @@ update msg model =
                 newSetup =
                     { currentSetup
                         | keyboard = keyboard
-                        , layout = Maybe.withDefault "" (List.head keyboard.layout)
                         , role = newRole
                         , isLeft = True
-                    }
-            in
-            ( { model
-                | setupRequirement = newSetup
-              }
-            , Cmd.none
-            )
-
-        SelectLayout layout ->
-            let
-                currentSetup =
-                    model.setupRequirement
-
-                newSetup =
-                    { currentSetup
-                        | layout = layout
                     }
             in
             ( { model
@@ -723,7 +689,6 @@ update msg model =
 setupRequirementEncoder : SetupRequirement -> List ( String, E.Value )
 setupRequirementEncoder setup =
     [ ( "keyboard", E.string setup.keyboard.name )
-    , ( "layout", E.string setup.layout )
     , ( "isSplit", E.bool (isSplit setup.role) )
     , ( "isSlave", E.bool (isSlave setup.role) )
     , ( "useLpme", E.bool (useLpme setup.role) )
@@ -869,15 +834,6 @@ viewKeyboardSelect model =
                 (\k -> Select.item [] [ text k.name ])
                 model.appInfo.keyboards
         )
-    , text "Select layout"
-    , Select.select
-        [ Select.id "select-layout"
-        , Select.onChange SelectLayout
-        ]
-      <|
-        List.map
-            (\k -> Select.item [] [ text k ])
-            (keyboardLayoutList model)
     , disableMscCheckbox model
     , useLpmeCheckbox model
     , Button.button
@@ -959,7 +915,7 @@ itemsFromList list =
         _ :: _ ->
             Select.item [] []
                 :: List.map
-                    (\n -> Select.item [ value n ] [ text n ])
+                    (\n -> Select.item [] [ text n ])
                     list
 
 
@@ -1050,15 +1006,6 @@ viewEditConfig model =
                         model.appInfo.keyboards
                 )
             )
-    , text "Select layout"
-    , Select.select
-        [ Select.id "select-layout"
-        , Select.onChange SelectLayout
-        ]
-      <|
-        List.map
-            (\k -> Select.item [] [ text k ])
-            (keyboardLayoutList model)
     , div (hidden (model.setupRequirement.keyboard.name == ""))
         [ useLpmeCheckbox model
         , Checkbox.checkbox
@@ -1075,12 +1022,6 @@ viewEditConfig model =
             , Checkbox.id "is-left"
             ]
             "Is Left"
-        , Checkbox.checkbox
-            [ Checkbox.checked model.setupRequirement.isJis
-            , Checkbox.onCheck IsJis
-            , Checkbox.id "print-jis"
-            ]
-            "Show keymap.json using JP_XX"
         , lableWithHelp "Debounce" "Matrix scan debounce setting"
         , spinBox model.setupRequirement.debounce
             ""
