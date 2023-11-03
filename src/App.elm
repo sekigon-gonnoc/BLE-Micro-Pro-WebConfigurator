@@ -1167,16 +1167,21 @@ navbar : Model -> Html Msg
 navbar model =
     Navbar.config NavbarMsg
         |> Navbar.items
-            [ Navbar.itemLink [ href "#/home" ] [ text "Home" ]
-
-            -- , Navbar.itemLink [ href "/keyboard" ] [ text "Select Keyboard" ]
-            , Navbar.itemLink [ href "#/update/bootloader" ] [ text "Update Bootloader" ]
-            , Navbar.itemLink [ href "#/update/application" ] [ text "Update Application" ]
-            , Navbar.itemLink [ href "#/config" ] [ text "Edit Config" ]
-            , Navbar.itemLink [ href "#/keymap" ] [ text "Write default Keymap" ]
+            [
+                makeNavItem model.url.fragment "#/home"  "Home" 
+                , makeNavItem model.url.fragment "#/update/bootloader"  "Update Bootloader" 
+                , makeNavItem model.url.fragment "#/update/application"  "Update Application" 
+                , makeNavItem model.url.fragment "#/config"  "Edit config" 
+                , makeNavItem model.url.fragment "#/keymap"  "Write default keymap" 
             ]
         |> Navbar.view model.navbarState
 
+makeNavItem : Maybe String -> String -> String -> Navbar.Item msg
+makeNavItem urlFragment link str =
+    if ( String.concat ["#" , Maybe.withDefault "" urlFragment]) == link then
+        Navbar.itemLink [ href link, style "font-weight" "bold" ] [ text str ]
+    else
+        Navbar.itemLink [ href link ] [ text str ]
 
 viewLink : String -> Html msg
 viewLink path =
