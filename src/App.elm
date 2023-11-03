@@ -126,7 +126,6 @@ type alias SetupRequirement =
     { keyboard : Keyboard
     , role : BlemRole
     , isLeft : Bool
-    , isJis : Bool
     , disableMsc : Bool
     , debounce : Int
     , centralInterval : Int
@@ -215,7 +214,6 @@ init flags url key =
             { keyboard = Keyboard "" [] [] "" False False
             , role = SINGLE
             , isLeft = True
-            , isJis = False
             , disableMsc = False
             , debounce = 1
             , centralInterval = 30
@@ -290,7 +288,6 @@ type Msg
     | IncrementCentralInterval Int
     | IsSlave Bool
     | IsLeft Bool
-    | IsJis Bool
 
 
 useSlave : BlemRole -> Bool
@@ -655,16 +652,6 @@ update msg model =
             in
             ( { model | setupRequirement = newSetup }, Cmd.none )
 
-        IsJis bool ->
-            let
-                currentSetup =
-                    model.setupRequirement
-
-                newSetup =
-                    { currentSetup | isJis = bool }
-            in
-            ( { model | setupRequirement = newSetup }, Cmd.none )
-
 
 setupRequirementEncoder : SetupRequirement -> List ( String, E.Value )
 setupRequirementEncoder setup =
@@ -673,7 +660,6 @@ setupRequirementEncoder setup =
     , ( "isSlave", E.bool (isSlave setup.role) )
     , ( "useLpme", E.bool (useLpme setup.role) )
     , ( "isLeft", E.bool setup.isLeft )
-    , ( "isJis", E.bool setup.isJis )
     , ( "debounce", E.int setup.debounce )
     , ( "centralInterval", E.int setup.centralInterval )
     , ( "periphInterval", E.int setup.periphInterval )
