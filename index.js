@@ -141,6 +141,12 @@ app.ports.updateConfig.subscribe(async (setup) => {
 
   if (!setup.keyboard) {
     loadUserFile(".bin", async (fileBuffer) => {
+      if (fileBuffer[0] != 0xae || fileBuffer[1] != 0xfa || fileBuffer[2] != 0x5a || fileBuffer[3] != 0xb0) {
+        console.log('File header does not match')
+        notifyUpdateError(`Invalid config file. `);
+        return;
+      }
+      assignSetup(fileBuffer, setup);
       await transferFileByXmodem(fileBuffer);
     });
   } else {
@@ -154,16 +160,33 @@ app.ports.updateConfig.subscribe(async (setup) => {
 
     const file = await fetch(fileName);
     if (file.ok) {
-      await transferFileByXmodem(new Uint8Array(await file.arrayBuffer()));
+      const fileBuffer = new Uint8Array(await file.arrayBuffer());
+      assignSetup(fileBuffer, setup);
+      console.log(fileBuffer);
+      // await transferFileByXmodem(fileBuffer);
     } else {
       notifyUpdateError(`${file.status} ${file.statusText}. `);
     }
   }
 });
 
+function assignSetup(fileBuffer, setup) {
+  fileBuffer.set([setup.debounce], 3913)
+  fileBuffer.set([setup.periphInterval], 3982)
+  fileBuffer.set([setup.periphInterval], 3984)
+  fileBuffer.set([setup.centralInterval], 3988)
+  fileBuffer.set([setup.centralInterval], 3990)
+  fileBuffer.set([setup.autoSleep], 4022)
+}
+
 app.ports.updateEeprom.subscribe(async (setup) => {
   if (!setup.keyboard) {
     loadUserFile(".bin", async (fileBuffer) => {
+      if (fileBuffer[0] != 0xe6 || fileBuffer[1] != 0xfe) {
+        console.log('file header does not match')
+        notifyUpdateError(`Invalid eeprom file. `);
+        return;
+      }
       await transferFileByXmodem(fileBuffer);
     });
   } else {
