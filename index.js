@@ -138,43 +138,36 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
 app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
-  const fileName = setup.isSplit
-    ? setup.isSlave
-      ? setup.useLpme
-        ? `config/${setup.keyboard}_lpme_config.bin`
-        : `config/${setup.keyboard}_master_config.bin`
-      : `config/${setup.keyboard}_slave_config.bin`
-    : `config/${setup.keyboard}_single_config.bin`;
 
-  const file = await fetch(fileName);
-  if (file.ok) {
-    await transferFileByXmodem(new Uint8Array(await file.arrayBuffer()));
+  if (!setup.keyboard) {
+    loadUserFile(".bin", async (fileBuffer) => {
+      await transferFileByXmodem(fileBuffer);
+    });
   } else {
-    notifyUpdateError(`${file.status} ${file.statusText}. `);
+    const fileName = setup.isSplit
+      ? setup.isSlave
+        ? setup.useLpme
+          ? `config/${setup.keyboard}_lpme_config.bin`
+          : `config/${setup.keyboard}_master_config.bin`
+        : `config/${setup.keyboard}_slave_config.bin`
+      : `config/${setup.keyboard}_single_config.bin`;
+
+    const file = await fetch(fileName);
+    if (file.ok) {
+      await transferFileByXmodem(new Uint8Array(await file.arrayBuffer()));
+    } else {
+      notifyUpdateError(`${file.status} ${file.statusText}. `);
+    }
   }
 });
 
 app.ports.updateEeprom.subscribe(async (setup) => {
-  let fileBuffer;
   if (!setup.keyboard) {
-    const input = document.createElement("input");
-    input.type = "file";
-    input.accept = ".bin";
-    input.addEventListener("change", () => {
-      const file = input.files?.[0];
-      if (file == null) return;
-      const reader = new FileReader();
-
-      reader.onload = async () => {
-        fileBuffer = new Uint8Array(await file.arrayBuffer());
-        await transferFileByXmodem(fileBuffer);
-      };
-      reader.readAsArrayBuffer(file);
+    loadUserFile(".bin", async (fileBuffer) => {
+      await transferFileByXmodem(fileBuffer);
     });
-    input.click();
-    input.remove();
   } else {
-    fileBuffer = new Uint8Array(
+    const fileBuffer = new Uint8Array(
       await fetch(`${setup.keyboadrd}_default.bin`).then((res) =>
         res.arrayBuffer(),
       ),
@@ -182,6 +175,26 @@ app.ports.updateEeprom.subscribe(async (setup) => {
     await transferFileByXmodem(fileBuffer);
   }
 });
+
+async function loadUserFile(extension, callback) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = extension;
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    if (file == null) return;
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const fileBuffer = new Uint8Array(await file.arrayBuffer());
+      await callback(fileBuffer);
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+  input.click();
+  input.remove();
+}
 
 async function transferFileByXmodem(data) {
   try {

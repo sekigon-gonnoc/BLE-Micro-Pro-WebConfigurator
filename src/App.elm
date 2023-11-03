@@ -291,9 +291,6 @@ type Msg
     | IsSlave Bool
     | IsLeft Bool
     | IsJis Bool
-    | UploadConfigRequested
-    | UploadConfigSelected File
-    | UploadConfigLoaded String
 
 
 useSlave : BlemRole -> Bool
@@ -668,23 +665,6 @@ update msg model =
             in
             ( { model | setupRequirement = newSetup }, Cmd.none )
 
-        UploadConfigRequested ->
-            ( model
-            , Select.file [ "application/json", ".JSN" ] UploadConfigSelected
-            )
-
-        UploadConfigSelected file ->
-            ( model, Task.perform UploadConfigLoaded (File.toString file) )
-
-        UploadConfigLoaded content ->
-            let
-                cmd =
-                    E.object <|
-                        setupRequirementEncoder model.setupRequirement
-                            ++ [ ( "uploaded", E.string content ) ]
-            in
-            ( model, updateConfig cmd )
-
 
 setupRequirementEncoder : SetupRequirement -> List ( String, E.Value )
 setupRequirementEncoder setup =
@@ -1055,11 +1035,7 @@ viewEditConfig model =
         [ Button.primary
         , Button.block
         , Button.attrs [ Spacing.mt3 ]
-        , if model.setupRequirement.keyboard.name == "" then
-            Button.onClick UploadConfigRequested
-
-          else
-            Button.onClick UpdateConfig
+        , Button.onClick UpdateConfig
         , Button.disabled
             (case model.updateProgress of
                 Updating _ ->

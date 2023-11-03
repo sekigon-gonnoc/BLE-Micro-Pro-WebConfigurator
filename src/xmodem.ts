@@ -56,7 +56,7 @@ class Xmodem {
 
   private async onReceivePacket(msg: Uint8Array) {
     for (const d of msg) {
-      console.log(d.toString(16));
+      //   console.log(d.toString(16));
       switch (d) {
         case "C".charCodeAt(0):
           if (this.xmodem_state === "INIT") {
