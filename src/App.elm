@@ -39,6 +39,9 @@ port updateFirmware : E.Value -> Cmd msg
 port updateConfig : E.Value -> Cmd msg
 
 
+port updateEeprom : E.Value -> Cmd msg
+
+
 port updateResult : (E.Value -> msg) -> Sub msg
 
 
@@ -296,6 +299,7 @@ type Msg
     | UpdateBootloader
     | UpdateApplication
     | UpdateConfig
+    | UpdateEeprom
     | UpdateResultMsg E.Value
     | IncrementDebounce Int
     | IncrementAutoSleep Int
@@ -574,6 +578,13 @@ update msg model =
                     E.object <| setupRequirementEncoder model.setupRequirement
             in
             ( model, updateConfig cmd )
+
+        UpdateEeprom ->
+            let
+                cmd =
+                    E.object <| setupRequirementEncoder model.setupRequirement
+            in
+            ( model, updateEeprom cmd )
 
         UpdateResultMsg result ->
             ( { model
@@ -1177,10 +1188,49 @@ spinBox value unit increment decrement =
 
 viewEditKeymap : Model -> List (Html Msg)
 viewEditKeymap model =
-    [ text "Use "
-    , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
-    , text " or "
-    , a [ href "https://sekigon-gonnoc.github.io/qmk_configurator", target "_blank" ] [ text "QMK Configurator for BLE Micro Pro" ]
+    [ text "Select keyboard"
+    , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
+        List.map
+            (\n -> Select.item [] [ text n ])
+            (filterOrAll
+                (if model.needsHelp then
+                    model.setupRequirement.keyboard.name
+
+                 else
+                    ""
+                )
+                ([ "", "upload your own" ]
+                    ++ List.map
+                        (\k -> k.name)
+                        model.appInfo.keyboards
+                )
+            )
+    , updateProgressInfo model Nothing
+    , Button.button
+        [ Button.primary
+        , Button.block
+        , Button.attrs [ Spacing.mt3 ]
+        , Button.onClick UpdateEeprom
+        , Button.disabled
+            (case model.updateProgress of
+                Updating _ ->
+                    True
+
+                _ ->
+                    False
+            )
+        ]
+        (progressSpinner
+            model
+            "Update"
+        )
+    , div []
+        [ text "Use "
+        , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
+        , text " or "
+        , a [ href "https://vial.rocks/", target "_blank" ] [ text "Vial" ]
+        , text " to edit keymap"
+        ]
     ]
 
 
@@ -1220,7 +1270,7 @@ navbar model =
             , Navbar.itemLink [ href "#/update/bootloader" ] [ text "Update Bootloader" ]
             , Navbar.itemLink [ href "#/update/application" ] [ text "Update Application" ]
             , Navbar.itemLink [ href "#/config" ] [ text "Edit Config" ]
-            , Navbar.itemLink [ href "#/keymap" ] [ text "Edit Keymap" ]
+            , Navbar.itemLink [ href "#/keymap" ] [ text "Write default Keymap" ]
             ]
         |> Navbar.view model.navbarState
 

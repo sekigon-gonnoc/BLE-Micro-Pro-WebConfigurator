@@ -138,63 +138,73 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
 app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
-  const fileName =
-    setup.isSplit ?
-      setup.isSlave ?
-        setup.useLpme ?
-          (`config/${setup.keyboard}_lpme_config.bin`)
-          :
-          (`config/${setup.keyboard}_master_config.bin`)
-        :
-        (`config/${setup.keyboard}_slave_config.bin`)
-      :
-      (`config/${setup.keyboard}_single_config.bin`)
+  const fileName = setup.isSplit
+    ? setup.isSlave
+      ? setup.useLpme
+        ? `config/${setup.keyboard}_lpme_config.bin`
+        : `config/${setup.keyboard}_master_config.bin`
+      : `config/${setup.keyboard}_slave_config.bin`
+    : `config/${setup.keyboard}_single_config.bin`;
 
-  const file = await fetch(fileName)
+  const file = await fetch(fileName);
   if (file.ok) {
-    try {
-      await serial.open();
-      serial.startReadLoop();
-    } catch (e) {
-      console.error(e);
-      notifyUpdateError(e.message);
-      return;
-    }
-
-    await serial.writeString("xmodem\n");
-
-    const xmodem = new Xmodem(serial, new Uint8Array(await file.arrayBuffer()));
-
-    while (xmodem.getProgress() < 100.0) {
-      await sleep(30);
-      notifyUpdateProgress(Math.floor(xmodem.getProgress()));
-    }
+    await transferFileByXmodem(new Uint8Array(await file.arrayBuffer()));
   } else {
     notifyUpdateError(`${file.status} ${file.statusText}. `);
   }
 });
 
-async function sendConfig(key, fileId, configString) {
-  serialReceivedStr = "";
-  await serial.writeString(`\x03file ${key}\n`);
+app.ports.updateEeprom.subscribe(async (setup) => {
+  let fileBuffer;
+  if (!setup.keyboard) {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".bin";
+    input.addEventListener("change", () => {
+      const file = input.files?.[0];
+      if (file == null) return;
+      const reader = new FileReader();
 
-  let configBytes = new TextEncoder().encode(configString);
+      reader.onload = async () => {
+        fileBuffer = new Uint8Array(await file.arrayBuffer());
+        await transferFileByXmodem(fileBuffer);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+    input.click();
+    input.remove();
+  } else {
+    fileBuffer = new Uint8Array(
+      await fetch(`${setup.keyboadrd}_default.bin`).then((res) =>
+        res.arrayBuffer(),
+      ),
+    );
+    await transferFileByXmodem(fileBuffer);
+  }
+});
 
-  for (let index = 0; index < configBytes.length; index += 64) {
-    await serial.write(configBytes.slice(index, index + 64));
-    await sleep(30);
-    notifyUpdateProgress(Math.floor((index / configBytes.length) * 100));
+async function transferFileByXmodem(data) {
+  try {
+    await serial.open();
+    serial.startReadLoop();
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+    return;
   }
 
-  await serial.writeString("\0");
-  await serial.writeString(`\nupdate ${fileId}\n`);
-  await sleep(100);
-  if (
-    !serialReceivedStr.includes("Failed") &&
-    serialReceivedStr.includes("Write succeed")
-  ) {
-    return true;
-  } else {
-    return Promise.reject(new Error("Failed to Update"));
+  let progress = 0;
+  notifyUpdateProgress(0);
+
+  await serial.writeString("xmodem\n");
+
+  const xmodem = new Xmodem(serial, data);
+
+  while (xmodem.getProgress() < 100.0) {
+    await sleep(30);
+    if (progress != Math.floor(xmodem.getProgress())) {
+      progress = Math.floor(xmodem.getProgress());
+      notifyUpdateProgress(progress);
+    }
   }
 }

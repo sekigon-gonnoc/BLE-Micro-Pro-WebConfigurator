@@ -25,6 +25,6 @@
     "prebuild": "elm-tooling install",
     "build": "export VITE_REVISION=$(git rev-parse --short HEAD);vite build",
     "serve": "vite preview",
-    "fmt": "prettier --write package.json src/*.js src/*.ts *.html; elm-format src/ --yes"
+    "fmt": "prettier --write package.json *.js src/*.js src/*.ts *.html; elm-format src/ --yes"
   }
 }

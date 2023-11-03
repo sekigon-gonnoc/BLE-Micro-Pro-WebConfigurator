@@ -29,14 +29,14 @@ class Xmodem {
   }
 
   private makePacket(): Uint8Array {
-    console.log(`Create packet ${this.current_packet}`)
+    console.log(`Create packet ${this.current_packet}`);
     const start = this.current_packet * this.payload_length;
     const end = (this.current_packet + 1) * this.payload_length;
     if (end <= this.file.length) {
       return Uint8Array.from([
         SOH,
         (this.current_packet + 1) & 0xff,
-        (~(this.current_packet + 1)) & 0xff,
+        ~(this.current_packet + 1) & 0xff,
         ...this.file.slice(start, end),
         0,
         0,
@@ -88,4 +88,4 @@ class Xmodem {
   }
 }
 
-export {Xmodem}
+export { Xmodem };
