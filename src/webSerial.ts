@@ -15,7 +15,7 @@ class WebSerial {
 
   constructor(
     private send_chunk: number = 64,
-    private send_interval: number = 30
+    private send_interval: number = 30,
   ) {}
 
   setReceiveCallback(recvHandler: ((msg: Uint8Array) => void) | null) {
