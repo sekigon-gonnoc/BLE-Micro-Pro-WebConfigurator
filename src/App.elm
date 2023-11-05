@@ -368,7 +368,11 @@ update msg model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    case url.path of
+                        "/latest" ->
+                            ( model, Nav.load "https://sekigon-gonnoc.github.io/BLE-Micro-Pro-WebConfigurator/")
+                        _ ->
+                            ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
@@ -770,10 +774,17 @@ view model =
                         _ ->
                             viewHome model
                    )
+                ++ viewFooter model
             )
         ]
     }
 
+viewFooter: Model -> List (Html Msg)
+viewFooter model =
+    [ div [ align "center", Spacing.mt3 ]
+        [ a [ href "/latest" ] [text "For new firmware(>=1.0.0)" ]
+        ]
+    ]
 
 viewHome : Model -> List (Html Msg)
 viewHome model =

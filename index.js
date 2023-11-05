@@ -7,7 +7,7 @@ import { Elm } from "./src/App.elm";
 const app = Elm.App.init({
   node: document.getElementById("main"),
   flags: {
-    revision: "0",
+    revision: import.meta.env.VITE_REVISION,
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: keyboards,
     bootloaders: [
