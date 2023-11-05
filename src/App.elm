@@ -712,9 +712,18 @@ view model =
                         _ ->
                             viewHome model
                    )
+                ++ viewFooter model
             )
         ]
     }
+
+
+viewFooter : Model -> List (Html Msg)
+viewFooter model =
+    [ div [ align "center", Spacing.mt3 ]
+        [ a [ href "legacy" ] [ text "For old firmware(<1.0.0)" ]
+        ]
+    ]
 
 
 viewHome : Model -> List (Html Msg)
@@ -899,7 +908,6 @@ viewUpdateFirmware model firmware =
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.application ] ] <|
                 itemsFromList (applicationList model)
-            , updateProgressInfo model <| Just "From v0.9.4, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
             ]
     )
         ++ [ disableMscCheckbox model
@@ -1167,21 +1175,23 @@ navbar : Model -> Html Msg
 navbar model =
     Navbar.config NavbarMsg
         |> Navbar.items
-            [
-                makeNavItem model.url.fragment "#/home"  "Home" 
-                , makeNavItem model.url.fragment "#/update/bootloader"  "Update Bootloader" 
-                , makeNavItem model.url.fragment "#/update/application"  "Update Application" 
-                , makeNavItem model.url.fragment "#/config"  "Edit config" 
-                , makeNavItem model.url.fragment "#/keymap"  "Write default keymap" 
+            [ makeNavItem model.url.fragment "#/home" "Home"
+            , makeNavItem model.url.fragment "#/update/bootloader" "Update Bootloader"
+            , makeNavItem model.url.fragment "#/update/application" "Update Application"
+            , makeNavItem model.url.fragment "#/config" "Edit config"
+            , makeNavItem model.url.fragment "#/keymap" "Write default keymap"
             ]
         |> Navbar.view model.navbarState
 
+
 makeNavItem : Maybe String -> String -> String -> Navbar.Item msg
 makeNavItem urlFragment link str =
-    if ( String.concat ["#" , Maybe.withDefault "" urlFragment]) == link then
+    if String.concat [ "#", Maybe.withDefault "" urlFragment ] == link then
         Navbar.itemLink [ href link, style "font-weight" "bold" ] [ text str ]
+
     else
         Navbar.itemLink [ href link ] [ text str ]
+
 
 viewLink : String -> Html msg
 viewLink path =

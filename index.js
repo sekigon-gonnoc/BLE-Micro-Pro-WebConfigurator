@@ -141,8 +141,13 @@ app.ports.updateConfig.subscribe(async (setup) => {
 
   if (!setup.keyboard) {
     loadUserFile(".bin", async (fileBuffer) => {
-      if (fileBuffer[0] != 0xae || fileBuffer[1] != 0xfa || fileBuffer[2] != 0x5a || fileBuffer[3] != 0xb0) {
-        console.log('File header does not match')
+      if (
+        fileBuffer[0] != 0xae ||
+        fileBuffer[1] != 0xfa ||
+        fileBuffer[2] != 0x5a ||
+        fileBuffer[3] != 0xb0
+      ) {
+        console.log("File header does not match");
         notifyUpdateError(`Invalid config file. `);
         return;
       }
@@ -171,19 +176,19 @@ app.ports.updateConfig.subscribe(async (setup) => {
 });
 
 function assignSetup(fileBuffer, setup) {
-  fileBuffer.set([setup.debounce], 3913)
-  fileBuffer.set([setup.periphInterval], 3982)
-  fileBuffer.set([setup.periphInterval], 3984)
-  fileBuffer.set([setup.centralInterval], 3988)
-  fileBuffer.set([setup.centralInterval], 3990)
-  fileBuffer.set([setup.autoSleep], 4022)
+  fileBuffer.set([setup.debounce], 3913);
+  fileBuffer.set([setup.periphInterval], 3982);
+  fileBuffer.set([setup.periphInterval], 3984);
+  fileBuffer.set([setup.centralInterval], 3988);
+  fileBuffer.set([setup.centralInterval], 3990);
+  fileBuffer.set([setup.autoSleep], 4022);
 }
 
 app.ports.updateEeprom.subscribe(async (setup) => {
   if (!setup.keyboard) {
     loadUserFile(".bin", async (fileBuffer) => {
       if (fileBuffer[0] != 0xe6 || fileBuffer[1] != 0xfe) {
-        console.log('file header does not match')
+        console.log("file header does not match");
         notifyUpdateError(`Invalid eeprom file. `);
         return;
       }
