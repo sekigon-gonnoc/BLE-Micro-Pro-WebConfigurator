@@ -349,7 +349,12 @@ update msg model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    case url.path of
+                        "/legacy" ->
+                            ( model, Nav.load "legacy" )
+
+                        _ ->
+                            ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
@@ -721,7 +726,7 @@ view model =
 viewFooter : Model -> List (Html Msg)
 viewFooter model =
     [ div [ align "center", Spacing.mt3 ]
-        [ a [ href "legacy" ] [ text "For old firmware(<1.0.0)" ]
+        [ a [ href "/legacy" ] [ text "For old firmware(<1.0.0)" ]
         ]
     ]
 
