@@ -85,6 +85,7 @@ type alias Model =
     , bootloader : Maybe String
     , application : Maybe String
     , updateProgress : UpdateProgress
+    , filterText : String
     }
 
 
@@ -225,6 +226,7 @@ init flags url key =
       , bootloader = Nothing
       , application = Nothing
       , updateProgress = None
+      , filterText = ""
       }
     , Cmd.batch
         [ navbarCmd
@@ -234,14 +236,14 @@ init flags url key =
 
 applicationList : Model -> List String
 applicationList model =
-    filterOrAll
+    filterList
         model.setupRequirement.keyboard.firmware
         model.appInfo.applications
 
 
 bootloaderList : Model -> List String
 bootloaderList model =
-    filterOrAll
+    filterList
         (String.toLower model.setupRequirement.keyboard.name)
         model.appInfo.bootloaders
 
@@ -272,6 +274,7 @@ type Msg
     | SelectKeyboard String
     | SelectBootloader String
     | SelectApplication String
+    | InputKeyboardFilter String
     | SetProceduer
     | GoNextStep
     | GoSlaveSetup
@@ -380,44 +383,23 @@ update msg model =
             )
 
         SelectKeyboard name ->
-            let
-                keyboard =
-                    Maybe.withDefault
-                        (Keyboard "" [] [] "" False False)
-                        (List.head
-                            (List.filter (\n -> n.name == name)
-                                model.appInfo.keyboards
-                            )
-                        )
-
-                currentSetup =
-                    model.setupRequirement
-
-                newRole =
-                    if keyboard.split then
-                        SPLIT_MASTER
-
-                    else
-                        SINGLE
-
-                newSetup =
-                    { currentSetup
-                        | keyboard = keyboard
-                        , role = newRole
-                        , isLeft = True
-                    }
-            in
-            ( { model
-                | setupRequirement = newSetup
-              }
-            , Cmd.none
-            )
+            ( updateKeyboard model name, Cmd.none )
 
         SelectBootloader name ->
             ( { model | bootloader = Just name }, Cmd.none )
 
         SelectApplication name ->
             ( { model | application = Just name }, Cmd.none )
+
+        InputKeyboardFilter name ->
+            let
+                keyboard =
+                    List.head <| filterList name <| List.map (\k -> k.name) model.appInfo.keyboards
+
+                newModel =
+                    updateKeyboard model <| Maybe.withDefault "" keyboard
+            in
+            ( { newModel | filterText = name }, Cmd.none )
 
         SetProceduer ->
             ( { model
@@ -670,6 +652,38 @@ setupRequirementEncoder setup =
     , ( "periphInterval", E.int setup.periphInterval )
     , ( "autoSleep", E.int setup.autoSleep )
     ]
+
+
+updateKeyboard : Model -> String -> Model
+updateKeyboard model name =
+    let
+        keyboard =
+            Maybe.withDefault
+                (Keyboard "" [] [] "" False False)
+                (List.head
+                    (List.filter (\n -> n.name == name)
+                        model.appInfo.keyboards
+                    )
+                )
+
+        currentSetup =
+            model.setupRequirement
+
+        newRole =
+            if keyboard.split then
+                SPLIT_MASTER
+
+            else
+                SINGLE
+
+        newSetup =
+            { currentSetup
+                | keyboard = keyboard
+                , role = newRole
+                , isLeft = True
+            }
+    in
+    { model | setupRequirement = newSetup }
 
 
 
@@ -969,15 +983,16 @@ viewUpdateApp model =
 viewEditConfig : Model -> List (Html Msg)
 viewEditConfig model =
     [ text "Select keyboard"
+    , Input.text [ Input.onInput InputKeyboardFilter, Input.attrs [ Html.Attributes.value model.filterText ], Input.placeholder "Filter text" ]
     , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
         List.map
             (\n -> Select.item [] [ text n ])
-            (filterOrAll
+            (filterList
                 (if model.needsHelp then
                     model.setupRequirement.keyboard.name
 
                  else
-                    ""
+                    model.filterText
                 )
                 ([ "", "upload your own" ]
                     ++ List.map
@@ -1105,15 +1120,16 @@ spinBox value unit increment decrement =
 viewEditKeymap : Model -> List (Html Msg)
 viewEditKeymap model =
     [ text "Select keyboard"
+    , Input.text [ Input.onInput InputKeyboardFilter, Input.attrs [ Html.Attributes.value model.filterText ], Input.placeholder "Filter text" ]
     , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
         List.map
             (\n -> Select.item [] [ text n ])
-            (filterOrAll
+            (filterList
                 (if model.needsHelp then
                     model.setupRequirement.keyboard.name
 
                  else
-                    ""
+                    model.filterText
                 )
                 ([ "", "upload your own" ]
                     ++ List.map
@@ -1163,17 +1179,9 @@ viewSlave model =
     ]
 
 
-filterOrAll : String -> List String -> List String
-filterOrAll key list =
-    let
-        res =
-            List.filter (\m -> String.contains key m) list
-    in
-    if List.isEmpty res then
-        list
-
-    else
-        res
+filterList : String -> List String -> List String
+filterList key list =
+    List.filter (\m -> String.contains key m) list
 
 
 navbar : Model -> Html Msg
