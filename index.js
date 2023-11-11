@@ -12,8 +12,8 @@ const app = Elm.App.init({
     revision: import.meta.env.VITE_REVISION,
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: Object.values(keyboards),
-    bootloaders: ["ble_micro_pro_bootloader_1_0_0_rc"],
-    applications: ["ble_micro_pro_vial_1_0_1_rc"],
+    bootloaders: ["ble_micro_pro_bootloader_1_0_2_rc"],
+    applications: ["ble_micro_pro_vial_1_0_2_rc"],
   },
 });
 
@@ -41,8 +41,26 @@ function notifyUpdateError(message) {
 }
 
 app.ports.updateFirmware.subscribe(async (command) => {
-  const dfu = new DfuBootloader(serial);
   console.log(command);
+
+  let firmName = `${command.type}/${command.name}`;
+
+  if (command.disableMsc == true) {
+    firmName = firmName + "_no_msc";
+  }
+
+  const dat = await fetch(`${firmName}.dat`);
+  const bin = await fetch(`${firmName}.bin`);
+
+  if (!(dat.ok && bin.ok)) {
+    console.error("failed to load file");
+    notifyUpdateError(`File ${firmName} not found.`);
+    return;
+  }
+
+  console.log("target firmware is found");
+
+  const dfu = new DfuBootloader(serial);
 
   if (serial.connected) {
     try {
@@ -59,25 +77,6 @@ app.ports.updateFirmware.subscribe(async (command) => {
     return;
   }
   serial.startReadLoop();
-
-  let firmName = `${command.type}/${command.name}`;
-
-  if (command.type == "application" && command.disableMsc == true) {
-    firmName = firmName.replace("default", "no_msc");
-  } else if (command.type == "bootloader" && command.disableMsc == true) {
-    firmName = firmName + "_no_msc";
-  }
-
-  const dat = await fetch(`${firmName}.dat`);
-  const bin = await fetch(`${firmName}.bin`);
-
-  if (!(dat.ok && bin.ok)) {
-    console.error("failed to load file");
-    notifyUpdateError(`File ${firmName} not found.`);
-    return;
-  }
-
-  console.log("target firmware is found");
 
   let is_dfu = false;
   try {

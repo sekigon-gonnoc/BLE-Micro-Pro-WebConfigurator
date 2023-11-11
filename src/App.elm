@@ -927,6 +927,7 @@ viewUpdateFirmware model firmware =
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.application ] ] <|
                 itemsFromList (applicationList model)
+            , updateProgressInfo model Nothing
             ]
     )
         ++ [ disableMscCheckbox model
