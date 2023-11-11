@@ -70,6 +70,9 @@ class WebSerial {
 
         if (value) {
           console.log(`serial received: ${value.byteLength}byte`);
+          try {
+            console.log(new TextDecoder().decode(value));
+          } catch (error) {}
 
           if (this.receiveCallback) {
             await this.receiveCallback(value);

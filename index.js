@@ -4,6 +4,7 @@ import { Xmodem } from "./src/xmodem";
 import "bootstrap/dist/css/bootstrap.min.css";
 import keyboards from "./src/keyboards.json";
 import { Elm } from "./src/App.elm";
+import { crc16 } from "crc";
 
 const app = Elm.App.init({
   node: document.getElementById("main"),
@@ -158,7 +159,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
       const fileBuffer = new Uint8Array(await file.arrayBuffer());
       assignSetup(fileBuffer, setup);
       console.log(fileBuffer);
-      // await transferFileByXmodem(fileBuffer);
+      await transferFileByXmodem(fileBuffer);
     } else {
       notifyUpdateError(`${file.status} ${file.statusText}. `);
     }
@@ -167,11 +168,14 @@ app.ports.updateConfig.subscribe(async (setup) => {
 
 function assignSetup(fileBuffer, setup) {
   fileBuffer.set([setup.debounce], 3913);
+  fileBuffer.set([setup.isLeft ? 1 : 0], 3914);
   fileBuffer.set([setup.periphInterval], 3982);
   fileBuffer.set([setup.periphInterval], 3984);
   fileBuffer.set([setup.centralInterval], 3988);
   fileBuffer.set([setup.centralInterval], 3990);
-  fileBuffer.set([setup.autoSleep], 4022);
+  fileBuffer.set([Math.round(setup.autoSleep / 10, 0)], 4022);
+  const crc = crc16(fileBuffer.slice(0, 4096 - 4));
+  fileBuffer.set([crc & 0xff, crc >> 8], 4096 - 4);
 }
 
 app.ports.updateEeprom.subscribe(async (setup) => {
