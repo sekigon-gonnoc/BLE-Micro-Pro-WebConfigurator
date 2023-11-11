@@ -243,9 +243,7 @@ applicationList model =
 
 bootloaderList : Model -> List String
 bootloaderList model =
-    filterList
-        (String.toLower model.setupRequirement.keyboard.name)
-        model.appInfo.bootloaders
+    model.appInfo.bootloaders
 
 
 
