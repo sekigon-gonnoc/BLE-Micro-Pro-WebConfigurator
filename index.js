@@ -2,7 +2,7 @@ import { WebSerial } from "./src/webSerial";
 import { DfuBootloader } from "./src/dfu";
 import { Xmodem } from "./src/xmodem";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { keyboards } from "./src/keyboards";
+import keyboards from "./src/keyboards.json";
 import { Elm } from "./src/App.elm";
 
 const app = Elm.App.init({
@@ -10,18 +10,12 @@ const app = Elm.App.init({
   flags: {
     revision: import.meta.env.VITE_REVISION,
     webSerialEnabled: navigator.serial ? true : false,
-    keyboards: keyboards,
+    keyboards: Object.values(keyboards),
     bootloaders: [
-      "ble_micro_pro_bootloader_0_11_2",
       "ble_micro_pro_bootloader_1_0_0_rc",
     ],
     applications: [
-      "ble_micro_pro_default_0_11_3",
       "ble_micro_pro_vial_1_0_1_rc",
-      "ble_micro_pro_safemode_0_11_3",
-      "crkbd_ecwl_bmp_default_0_11_2",
-      "kugel_default_0_11_2",
-      "toybox_bmp_default_0_11_2",
     ],
   },
 });

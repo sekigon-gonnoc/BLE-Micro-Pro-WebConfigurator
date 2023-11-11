@@ -1,0 +1,662 @@
+{
+  "25keys_zinc_rev1": {
+    "name": "25keys_zinc_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "crkbd_rev1": {
+    "name": "crkbd_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "dailycraft_bat43_rev1": {
+    "name": "dailycraft_bat43_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "dailycraft_bat43_rev2": {
+    "name": "dailycraft_bat43_rev2",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "dailycraft_claw44_rev1": {
+    "name": "dailycraft_claw44_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "dailycraft_owl8": {
+    "name": "dailycraft_owl8",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "dailycraft_stickey4": {
+    "name": "dailycraft_stickey4",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "dailycraft_wings42_rev1_extkeys": {
+    "name": "dailycraft_wings42_rev1_extkeys",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "dailycraft_wings42_rev1": {
+    "name": "dailycraft_wings42_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "dailycraft_wings42_rev2": {
+    "name": "dailycraft_wings42_rev2",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "gl516_a52gl": {
+    "name": "gl516_a52gl",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "gl516_j73gl": {
+    "name": "gl516_j73gl",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "gl516_n51gl": {
+    "name": "gl516_n51gl",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "helix_pico": {
+    "name": "helix_pico",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "helix_rev2_back": {
+    "name": "helix_rev2_back",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "helix_rev2": {
+    "name": "helix_rev2",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "helix_rev3_4rows": {
+    "name": "helix_rev3_4rows",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "helix_rev3_5rows": {
+    "name": "helix_rev3_5rows",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "kakunpc_angel64_rev1": {
+    "name": "kakunpc_angel64_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "kakunpc_rabbit_capture_plan": {
+    "name": "kakunpc_rabbit_capture_plan",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "lets_split_rev2": {
+    "name": "lets_split_rev2",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "lily58_rev1": {
+    "name": "lily58_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "majistic": {
+    "name": "majistic",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "marksard_leftover30": {
+    "name": "marksard_leftover30",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "marksard_treadstone48_rev1": {
+    "name": "marksard_treadstone48_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "marksard_treadstone48_rev2": {
+    "name": "marksard_treadstone48_rev2",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "mint60": {
+    "name": "mint60",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "numatreus": {
+    "name": "numatreus",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "omkbd_ergodash_mini": {
+    "name": "omkbd_ergodash_mini",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_ergodash_rev1": {
+    "name": "omkbd_ergodash_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_3x6": {
+    "name": "omkbd_runner3680_3x6",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_3x7": {
+    "name": "omkbd_runner3680_3x7",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_3x8": {
+    "name": "omkbd_runner3680_3x8",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_4x6": {
+    "name": "omkbd_runner3680_4x6",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_4x7": {
+    "name": "omkbd_runner3680_4x7",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_4x8": {
+    "name": "omkbd_runner3680_4x8",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_5x6_5x8": {
+    "name": "omkbd_runner3680_5x6_5x8",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_5x6": {
+    "name": "omkbd_runner3680_5x6",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_5x7": {
+    "name": "omkbd_runner3680_5x7",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "omkbd_runner3680_5x8": {
+    "name": "omkbd_runner3680_5x8",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "rate_pistachio_mp": {
+    "name": "rate_pistachio_mp",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "recompile_keys_choco60_rev1": {
+    "name": "recompile_keys_choco60_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "recompile_keys_cocoa40": {
+    "name": "recompile_keys_cocoa40",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "recompile_keys_nomu30_rev1": {
+    "name": "recompile_keys_nomu30_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "rect44": {
+    "name": "rect44",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "salicylic_acid3_7skb_rev1": {
+    "name": "salicylic_acid3_7skb_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "salicylic_acid3_7splus": {
+    "name": "salicylic_acid3_7splus",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "salicylic_acid3_ajisai74": {
+    "name": "salicylic_acid3_ajisai74",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "salicylic_acid3_ergoarrows": {
+    "name": "salicylic_acid3_ergoarrows",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "salicylic_acid3_guide68": {
+    "name": "salicylic_acid3_guide68",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "salicylic_acid3_jisplit89_rev1": {
+    "name": "salicylic_acid3_jisplit89_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "salicylic_acid3_naked48_rev1": {
+    "name": "salicylic_acid3_naked48_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "salicylic_acid3_naked60_rev1": {
+    "name": "salicylic_acid3_naked60_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "salicylic_acid3_naked64_rev1": {
+    "name": "salicylic_acid3_naked64_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "takashicompany_endzone34": {
+    "name": "takashicompany_endzone34",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "takashicompany_minidivide": {
+    "name": "takashicompany_minidivide",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "takashicompany_minizone": {
+    "name": "takashicompany_minizone",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "takashicompany_radialex": {
+    "name": "takashicompany_radialex",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "takashiski_otaku_split_rev1": {
+    "name": "takashiski_otaku_split_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "uzu42_rev1": {
+    "name": "uzu42_rev1",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "yoichiro_lunakey_mini": {
+    "name": "yoichiro_lunakey_mini",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "yushakobo_ergo68": {
+    "name": "yushakobo_ergo68",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "yushakobo_navpad_10_helix_r": {
+    "name": "yushakobo_navpad_10_helix_r",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
+  "yushakobo_primer16": {
+    "name": "yushakobo_primer16",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "yushakobo_primer61": {
+    "name": "yushakobo_primer61",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "yynmt_dozen0": {
+    "name": "yynmt_dozen0",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  }
+}
