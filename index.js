@@ -146,13 +146,14 @@ app.ports.updateConfig.subscribe(async (setup) => {
       await transferFileByXmodem(fileBuffer);
     });
   } else {
-    const fileName = setup.isSplit
+    const fileName = setup.useLpme
+      ? `config/${setup.keyboard}_lpme_config.bin`
+      : setup.isSplit
       ? setup.isSlave
-        ? setup.useLpme
-          ? `config/${setup.keyboard}_lpme_config.bin`
-          : `config/${setup.keyboard}_master_config.bin`
-        : `config/${setup.keyboard}_slave_config.bin`
+        ? `config/${setup.keyboard}_slave_config.bin`
+        : `config/${setup.keyboard}_master_config.bin`
       : `config/${setup.keyboard}_single_config.bin`;
+    console.log(fileName);
 
     const file = await fetch(fileName);
     if (file.ok) {
