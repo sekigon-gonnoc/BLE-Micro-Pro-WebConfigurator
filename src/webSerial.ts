@@ -15,7 +15,7 @@ class WebSerial {
 
   constructor(
     private send_chunk: number = 64,
-    private send_interval: number = 30
+    private send_interval: number = 30,
   ) {}
 
   setReceiveCallback(recvHandler: ((msg: Uint8Array) => void) | null) {
@@ -70,9 +70,12 @@ class WebSerial {
 
         if (value) {
           console.log(`serial received: ${value.byteLength}byte`);
+          try {
+            console.log(new TextDecoder().decode(value));
+          } catch (error) {}
 
           if (this.receiveCallback) {
-            this.receiveCallback(value);
+            await this.receiveCallback(value);
           }
         }
 
@@ -108,7 +111,7 @@ class WebSerial {
 
   async write(msg: Uint8Array) {
     if (this.writable == null) {
-      return;
+      throw new Error("Port is not available");
     }
 
     const writer = this.writable.getWriter();
@@ -143,11 +146,15 @@ class WebSerial {
       this.closeCallback();
     }
 
+    this.receiveCallback = null;
+    this.closeCallback = null;
+
     if (this.port) {
       try {
         await this.port.close();
         this.port = null;
         this._connected = false;
+        this.errorCallback = null;
       } catch (e) {
         console.error(e);
       }

@@ -1,28 +1,19 @@
 import { WebSerial } from "./src/webSerial";
 import { DfuBootloader } from "./src/dfu";
+import { Xmodem } from "./src/xmodem";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { keyboards } from "./src/keyboards";
-
-const { Elm } = require("./src/App.elm");
+import keyboards from "./src/keyboards.json";
+import { Elm } from "./src/App.elm";
+import { crc16 } from "crc";
 
 const app = Elm.App.init({
   node: document.getElementById("main"),
   flags: {
-    revision: process.env.REVISION,
+    revision: import.meta.env.VITE_REVISION,
     webSerialEnabled: navigator.serial ? true : false,
-    keyboards: keyboards,
-    bootloaders: [
-      "ble_micro_pro_bootloader_0_11_2",
-      "ble_micro_pro_bootloader_1_0_0_rc",
-    ],
-    applications: [
-      "ble_micro_pro_default_0_11_3",
-      "ble_micro_pro_vial_1_0_1_rc",
-      "ble_micro_pro_safemode_0_11_3",
-      "crkbd_ecwl_bmp_default_0_11_2",
-      "kugel_default_0_11_2",
-      "toybox_bmp_default_0_11_2",
-    ],
+    keyboards: Object.values(keyboards),
+    bootloaders: ["ble_micro_pro_bootloader_1_0_2_rc"],
+    applications: ["ble_micro_pro_vial_1_0_2_rc"],
   },
 });
 
@@ -50,8 +41,26 @@ function notifyUpdateError(message) {
 }
 
 app.ports.updateFirmware.subscribe(async (command) => {
-  const dfu = new DfuBootloader(serial);
   console.log(command);
+
+  let firmName = `${command.type}/${command.name}`;
+
+  if (command.disableMsc == true) {
+    firmName = firmName + "_no_msc";
+  }
+
+  const dat = await fetch(`${firmName}.dat`);
+  const bin = await fetch(`${firmName}.bin`);
+
+  if (!(dat.ok && bin.ok)) {
+    console.error("failed to load file");
+    notifyUpdateError(`File ${firmName} not found.`);
+    return;
+  }
+
+  console.log("target firmware is found");
+
+  const dfu = new DfuBootloader(serial);
 
   if (serial.connected) {
     try {
@@ -68,25 +77,6 @@ app.ports.updateFirmware.subscribe(async (command) => {
     return;
   }
   serial.startReadLoop();
-
-  let firmName = `${command.type}/${command.name}`;
-
-  if (command.type == "application" && command.disableMsc == true) {
-    firmName = firmName.replace("default", "no_msc");
-  } else if (command.type == "bootloader" && command.disableMsc == true) {
-    firmName = firmName + "_no_msc";
-  }
-
-  const dat = await fetch(`${firmName}.dat`);
-  const bin = await fetch(`${firmName}.bin`);
-
-  if (!(dat.ok && bin.ok)) {
-    console.error("failed to load file");
-    notifyUpdateError(`File ${firmName} not found.`);
-    return;
-  }
-
-  console.log("target firmware is found");
 
   let is_dfu = false;
   try {
@@ -139,171 +129,121 @@ app.ports.updateFirmware.subscribe(async (command) => {
 app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
 
-  let json;
-  if (!setup.uploaded) {
-    try {
-      let configName = `config/${setup.keyboard}/${setup.keyboard}`;
-
-      if (setup.layout != "") {
-        configName += `_${setup.layout}`;
-      }
-
-      if (setup.useLpme) {
-        configName += "_lpme_left_config.json";
-      } else if (setup.isSplit) {
-        if (setup.isLeft) {
-          configName += "_master_left_config.json";
-        } else {
-          configName += "_slave_right_config.json";
-        }
-      } else {
-        configName += "_config.json";
-      }
-
-      const file = await fetch(`${configName}`);
-
-      if (!file.ok) {
-        console.error("failed to load file");
-        notifyUpdateError(e.message);
+  if (!setup.keyboard) {
+    loadUserFile(".bin", async (fileBuffer) => {
+      if (
+        fileBuffer[0] != 0xae ||
+        fileBuffer[1] != 0xfa ||
+        fileBuffer[2] != 0x5a ||
+        fileBuffer[3] != 0xb0
+      ) {
+        console.log("File header does not match");
+        notifyUpdateError(`Invalid config file. `);
         return;
       }
+      assignSetup(fileBuffer, setup);
+      await transferFileByXmodem(fileBuffer);
+    });
+  } else {
+    const fileName = setup.useLpme
+      ? `config/${setup.keyboard}_lpme_config.bin`
+      : setup.isSplit
+      ? setup.isSlave
+        ? `config/${setup.keyboard}_slave_config.bin`
+        : `config/${setup.keyboard}_master_config.bin`
+      : `config/${setup.keyboard}_single_config.bin`;
+    console.log(fileName);
 
-      json = await file.json();
+    const file = await fetch(fileName);
+    if (file.ok) {
+      const fileBuffer = new Uint8Array(await file.arrayBuffer());
+      assignSetup(fileBuffer, setup);
+      console.log(fileBuffer);
+      await transferFileByXmodem(fileBuffer);
+    } else {
+      notifyUpdateError(`${file.status} ${file.statusText}. `);
+    }
+  }
+});
 
-      if (setup.isSplit) {
-        if (setup.useLpme) {
-          json.config.mode = "SINGLE";
-        } else {
-          if (setup.isSlave) {
-            json.config.mode = "SPLIT_SLAVE";
-          } else {
-            json.config.mode = "SPLIT_MASTER";
-          }
-        }
-      } else {
-        json.config.mode = "SINGLE";
-      }
+function assignSetup(fileBuffer, setup) {
+  fileBuffer.set([setup.debounce], 3913);
+  fileBuffer.set([setup.isLeft ? 1 : 0], 3914);
+  fileBuffer.set([setup.periphInterval], 3982);
+  fileBuffer.set([setup.periphInterval], 3984);
+  fileBuffer.set([setup.centralInterval], 3988);
+  fileBuffer.set([setup.centralInterval], 3990);
+  fileBuffer.set([Math.round(setup.autoSleep / 10, 0)], 4022);
+  const crc = crc16(fileBuffer.slice(0, 4096 - 4));
+  fileBuffer.set([crc & 0xff, crc >> 8], 4096 - 4);
+}
 
-      json.config.matrix.debounce = setup.debounce;
-      json.config.matrix.is_left_hand = setup.isLeft ? 1 : 0;
+app.ports.updateEeprom.subscribe(async (setup) => {
+  if (setup.keyboard) {
+    const fileBuffer = new Uint8Array(
+      await fetch(`${setup.keyboadrd}_default.bin`).then((res) =>
+        res.arrayBuffer(),
+      ),
+    );
 
-      json.config.peripheral.max_interval = setup.periphInterval;
-      json.config.peripheral.min_interval = setup.periphInterval;
-      json.config.peripheral.slave_latency = Math.floor(
-        500 / setup.periphInterval
-      );
-
-      json.config.central.max_interval = setup.centralInterval;
-      json.config.central.min_interval = setup.centralInterval;
-
-      json.config.keymap.locale = setup.isJis ? "JP" : "US";
-
-      if (!json.config.reserved) {
-        json.config.reserved = Array(8).fill(0);
-      }
-      json.config.reserved[2] = Math.floor(setup.autoSleep / 10);
-    } catch (e) {
-      console.error(e);
-      notifyUpdateError(e.message);
+    if (fileBuffer.length != 0) {
+      await transferFileByXmodem(fileBuffer);
       return;
     }
   }
 
-  if (serial.connected) {
-    try {
-      await serial.close();
-    } catch (e) {}
-  }
-
-  serialReceivedStr = "";
-  serial.setReceiveCallback((array) => {
-    let receivedPacket = String.fromCharCode.apply(null, array);
-    serialReceivedStr += receivedPacket;
+  loadUserFile(".bin", async (fileBuffer) => {
+    if (fileBuffer[0] != 0xe6 || fileBuffer[1] != 0xfe) {
+      console.log("file header does not match");
+      notifyUpdateError(`Invalid eeprom file. `);
+      return;
+    }
+    await transferFileByXmodem(fileBuffer);
   });
+});
 
+async function loadUserFile(extension, callback) {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = extension;
+  input.addEventListener("change", () => {
+    const file = input.files?.[0];
+    if (file == null) return;
+    const reader = new FileReader();
+
+    reader.onload = async () => {
+      const fileBuffer = new Uint8Array(await file.arrayBuffer());
+      await callback(fileBuffer);
+    };
+
+    reader.readAsArrayBuffer(file);
+  });
+  input.click();
+  input.remove();
+}
+
+async function transferFileByXmodem(data) {
   try {
     await serial.open();
+    serial.startReadLoop();
   } catch (e) {
     console.error(e);
     notifyUpdateError(e.message);
     return;
   }
-  serial.startReadLoop();
 
-  if (setup.uploaded) {
-    // send uploaded config
-    try {
-      await sendConfig("config", 0, setup.uploaded);
-      notifyUpdateProgress(100);
-    } catch (e) {
-      console.error(e);
-      notifyUpdateError(e.message);
-    } finally {
-      await serial.close();
-    }
-    return;
-  }
+  let progress = 0;
+  notifyUpdateProgress(0);
 
-  try {
-    await sendConfig("config", 0, JSON.stringify(json));
-    notifyUpdateProgress(100);
+  await serial.writeString("xmodem\n");
 
-    const filename =
-      setup.layout == ""
-        ? `config/${setup.keyboard}/${setup.keyboard}_encoder.json`
-        : `config/${setup.keyboard}/${setup.keyboard}_${setup.layout}_encoder.json`;
+  const xmodem = new Xmodem(serial, data);
 
-    const file = await fetch(filename);
-
-    if (file.ok) {
-      let j = await file
-        .json()
-        .then((j) => {
-          j = JSON.stringify(j);
-          return j;
-        })
-        .catch(() => {
-          console.log("no file");
-          return null;
-        });
-
-      if (j) {
-        console.log(j);
-        await sendConfig("encoder", 5, j);
-        notifyUpdateProgress(100);
-      } else {
-        await serial.writeString(`\nremove 5\n`);
-      }
-    }
-  } catch (e) {
-    console.error(e);
-    notifyUpdateError(e.message);
-  } finally {
-    await serial.close();
-    return;
-  }
-});
-async function sendConfig(key, fileId, configString) {
-  serialReceivedStr = "";
-  await serial.writeString(`\x03file ${key}\n`);
-
-  let configBytes = new TextEncoder().encode(configString);
-
-  for (let index = 0; index < configBytes.length; index += 64) {
-    await serial.write(configBytes.slice(index, index + 64));
+  while (xmodem.getProgress() < 100.0) {
     await sleep(30);
-    notifyUpdateProgress(Math.floor((index / configBytes.length) * 100));
-  }
-
-  await serial.writeString("\0");
-  await serial.writeString(`\nupdate ${fileId}\n`);
-  await sleep(100);
-  if (
-    !serialReceivedStr.includes("Failed") &&
-    serialReceivedStr.includes("Write succeed")
-  ) {
-    return true;
-  } else {
-    return Promise.reject(new Error("Failed to Update"));
+    if (progress != Math.floor(xmodem.getProgress())) {
+      progress = Math.floor(xmodem.getProgress());
+      notifyUpdateProgress(progress);
+    }
   }
 }

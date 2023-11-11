@@ -39,6 +39,9 @@ port updateFirmware : E.Value -> Cmd msg
 port updateConfig : E.Value -> Cmd msg
 
 
+port updateEeprom : E.Value -> Cmd msg
+
+
 port updateResult : (E.Value -> msg) -> Sub msg
 
 
@@ -82,6 +85,7 @@ type alias Model =
     , bootloader : Maybe String
     , application : Maybe String
     , updateProgress : UpdateProgress
+    , filterText : String
     }
 
 
@@ -121,10 +125,8 @@ type BlemRole
 
 type alias SetupRequirement =
     { keyboard : Keyboard
-    , layout : String
     , role : BlemRole
     , isLeft : Bool
-    , isJis : Bool
     , disableMsc : Bool
     , debounce : Int
     , centralInterval : Int
@@ -211,10 +213,8 @@ init flags url key =
       , needsHelp = False
       , setupRequirement =
             { keyboard = Keyboard "" [] [] "" False False
-            , layout = ""
             , role = SINGLE
             , isLeft = True
-            , isJis = False
             , disableMsc = False
             , debounce = 1
             , centralInterval = 30
@@ -226,6 +226,7 @@ init flags url key =
       , bootloader = Nothing
       , application = Nothing
       , updateProgress = None
+      , filterText = ""
       }
     , Cmd.batch
         [ navbarCmd
@@ -235,30 +236,16 @@ init flags url key =
 
 applicationList : Model -> List String
 applicationList model =
-    filterOrAll
+    filterList
         model.setupRequirement.keyboard.firmware
         model.appInfo.applications
 
 
 bootloaderList : Model -> List String
 bootloaderList model =
-    filterOrAll
+    filterList
         (String.toLower model.setupRequirement.keyboard.name)
         model.appInfo.bootloaders
-
-
-keyboardLayoutList : Model -> List String
-keyboardLayoutList model =
-    if
-        model.needsHelp
-            && List.length model.setupRequirement.keyboard.layout
-            > 1
-    then
-        model.setupRequirement.layout
-            :: model.setupRequirement.keyboard.layout
-
-    else
-        model.setupRequirement.keyboard.layout
 
 
 
@@ -285,9 +272,9 @@ type Msg
     | CarouselMsg Carousel.Msg
     | StartNavigation
     | SelectKeyboard String
-    | SelectLayout String
     | SelectBootloader String
     | SelectApplication String
+    | InputKeyboardFilter String
     | SetProceduer
     | GoNextStep
     | GoSlaveSetup
@@ -296,6 +283,7 @@ type Msg
     | UpdateBootloader
     | UpdateApplication
     | UpdateConfig
+    | UpdateEeprom
     | UpdateResultMsg E.Value
     | IncrementDebounce Int
     | IncrementAutoSleep Int
@@ -303,10 +291,6 @@ type Msg
     | IncrementCentralInterval Int
     | IsSlave Bool
     | IsLeft Bool
-    | IsJis Bool
-    | UploadConfigRequested
-    | UploadConfigSelected File
-    | UploadConfigLoaded String
 
 
 useSlave : BlemRole -> Bool
@@ -368,7 +352,12 @@ update msg model =
         LinkClicked urlRequest ->
             case urlRequest of
                 Browser.Internal url ->
-                    ( model, Nav.pushUrl model.key (Url.toString url) )
+                    case url.path of
+                        "/legacy" ->
+                            ( model, Nav.load "legacy" )
+
+                        _ ->
+                            ( model, Nav.pushUrl model.key (Url.toString url) )
 
                 Browser.External href ->
                     ( model, Nav.load href )
@@ -394,61 +383,23 @@ update msg model =
             )
 
         SelectKeyboard name ->
-            let
-                keyboard =
-                    Maybe.withDefault
-                        (Keyboard "" [] [] "" False False)
-                        (List.head
-                            (List.filter (\n -> n.name == name)
-                                model.appInfo.keyboards
-                            )
-                        )
-
-                currentSetup =
-                    model.setupRequirement
-
-                newRole =
-                    if keyboard.split then
-                        SPLIT_MASTER
-
-                    else
-                        SINGLE
-
-                newSetup =
-                    { currentSetup
-                        | keyboard = keyboard
-                        , layout = Maybe.withDefault "" (List.head keyboard.layout)
-                        , role = newRole
-                        , isLeft = True
-                    }
-            in
-            ( { model
-                | setupRequirement = newSetup
-              }
-            , Cmd.none
-            )
-
-        SelectLayout layout ->
-            let
-                currentSetup =
-                    model.setupRequirement
-
-                newSetup =
-                    { currentSetup
-                        | layout = layout
-                    }
-            in
-            ( { model
-                | setupRequirement = newSetup
-              }
-            , Cmd.none
-            )
+            ( updateKeyboard model name, Cmd.none )
 
         SelectBootloader name ->
             ( { model | bootloader = Just name }, Cmd.none )
 
         SelectApplication name ->
             ( { model | application = Just name }, Cmd.none )
+
+        InputKeyboardFilter name ->
+            let
+                keyboard =
+                    List.head <| filterList name <| List.map (\k -> k.name) model.appInfo.keyboards
+
+                newModel =
+                    updateKeyboard model <| Maybe.withDefault "" keyboard
+            in
+            ( { newModel | filterText = name }, Cmd.none )
 
         SetProceduer ->
             ( { model
@@ -575,6 +526,13 @@ update msg model =
             in
             ( model, updateConfig cmd )
 
+        UpdateEeprom ->
+            let
+                cmd =
+                    E.object <| setupRequirementEncoder model.setupRequirement
+            in
+            ( model, updateEeprom cmd )
+
         UpdateResultMsg result ->
             ( { model
                 | updateProgress =
@@ -681,48 +639,51 @@ update msg model =
             in
             ( { model | setupRequirement = newSetup }, Cmd.none )
 
-        IsJis bool ->
-            let
-                currentSetup =
-                    model.setupRequirement
-
-                newSetup =
-                    { currentSetup | isJis = bool }
-            in
-            ( { model | setupRequirement = newSetup }, Cmd.none )
-
-        UploadConfigRequested ->
-            ( model
-            , Select.file [ "application/json", ".JSN" ] UploadConfigSelected
-            )
-
-        UploadConfigSelected file ->
-            ( model, Task.perform UploadConfigLoaded (File.toString file) )
-
-        UploadConfigLoaded content ->
-            let
-                cmd =
-                    E.object <|
-                        setupRequirementEncoder model.setupRequirement
-                            ++ [ ( "uploaded", E.string content ) ]
-            in
-            ( model, updateConfig cmd )
-
 
 setupRequirementEncoder : SetupRequirement -> List ( String, E.Value )
 setupRequirementEncoder setup =
     [ ( "keyboard", E.string setup.keyboard.name )
-    , ( "layout", E.string setup.layout )
     , ( "isSplit", E.bool (isSplit setup.role) )
     , ( "isSlave", E.bool (isSlave setup.role) )
     , ( "useLpme", E.bool (useLpme setup.role) )
     , ( "isLeft", E.bool setup.isLeft )
-    , ( "isJis", E.bool setup.isJis )
     , ( "debounce", E.int setup.debounce )
     , ( "centralInterval", E.int setup.centralInterval )
     , ( "periphInterval", E.int setup.periphInterval )
     , ( "autoSleep", E.int setup.autoSleep )
     ]
+
+
+updateKeyboard : Model -> String -> Model
+updateKeyboard model name =
+    let
+        keyboard =
+            Maybe.withDefault
+                (Keyboard "" [] [] "" False False)
+                (List.head
+                    (List.filter (\n -> n.name == name)
+                        model.appInfo.keyboards
+                    )
+                )
+
+        currentSetup =
+            model.setupRequirement
+
+        newRole =
+            if keyboard.split then
+                SPLIT_MASTER
+
+            else
+                SINGLE
+
+        newSetup =
+            { currentSetup
+                | keyboard = keyboard
+                , role = newRole
+                , isLeft = True
+            }
+    in
+    { model | setupRequirement = newSetup }
 
 
 
@@ -770,9 +731,18 @@ view model =
                         _ ->
                             viewHome model
                    )
+                ++ viewFooter model
             )
         ]
     }
+
+
+viewFooter : Model -> List (Html Msg)
+viewFooter model =
+    [ div [ align "center", Spacing.mt3 ]
+        [ a [ href "/legacy" ] [ text "For old firmware(<1.0.0)" ]
+        ]
+    ]
 
 
 viewHome : Model -> List (Html Msg)
@@ -782,7 +752,7 @@ viewHome model =
         |> Carousel.withControls
         |> Carousel.withIndicators
         |> Carousel.slides
-            [ Slide.config [] (Slide.image [] "./assets/ble_micro_pro.svg")
+            [ Slide.config [] (Slide.image [] "assets/ble_micro_pro.svg")
             ]
         |> Carousel.view model.carouselState
     , Button.linkButton
@@ -858,15 +828,6 @@ viewKeyboardSelect model =
                 (\k -> Select.item [] [ text k.name ])
                 model.appInfo.keyboards
         )
-    , text "Select layout"
-    , Select.select
-        [ Select.id "select-layout"
-        , Select.onChange SelectLayout
-        ]
-      <|
-        List.map
-            (\k -> Select.item [] [ text k ])
-            (keyboardLayoutList model)
     , disableMscCheckbox model
     , useLpmeCheckbox model
     , Button.button
@@ -948,7 +909,7 @@ itemsFromList list =
         _ :: _ ->
             Select.item [] []
                 :: List.map
-                    (\n -> Select.item [ value n ] [ text n ])
+                    (\n -> Select.item [] [ text n ])
                     list
 
 
@@ -966,7 +927,7 @@ viewUpdateFirmware model firmware =
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.application ] ] <|
                 itemsFromList (applicationList model)
-            , updateProgressInfo model <| Just "From v0.9.4, keycode table is changed. Backup your KEYMAP.JSN for older versions before update firmware."
+            , updateProgressInfo model Nothing
             ]
     )
         ++ [ disableMscCheckbox model
@@ -1023,15 +984,16 @@ viewUpdateApp model =
 viewEditConfig : Model -> List (Html Msg)
 viewEditConfig model =
     [ text "Select keyboard"
+    , Input.text [ Input.onInput InputKeyboardFilter, Input.attrs [ Html.Attributes.value model.filterText ], Input.placeholder "Filter text" ]
     , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
         List.map
             (\n -> Select.item [] [ text n ])
-            (filterOrAll
+            (filterList
                 (if model.needsHelp then
                     model.setupRequirement.keyboard.name
 
                  else
-                    ""
+                    model.filterText
                 )
                 ([ "", "upload your own" ]
                     ++ List.map
@@ -1039,15 +1001,6 @@ viewEditConfig model =
                         model.appInfo.keyboards
                 )
             )
-    , text "Select layout"
-    , Select.select
-        [ Select.id "select-layout"
-        , Select.onChange SelectLayout
-        ]
-      <|
-        List.map
-            (\k -> Select.item [] [ text k ])
-            (keyboardLayoutList model)
     , div (hidden (model.setupRequirement.keyboard.name == ""))
         [ useLpmeCheckbox model
         , Checkbox.checkbox
@@ -1064,12 +1017,6 @@ viewEditConfig model =
             , Checkbox.id "is-left"
             ]
             "Is Left"
-        , Checkbox.checkbox
-            [ Checkbox.checked model.setupRequirement.isJis
-            , Checkbox.onCheck IsJis
-            , Checkbox.id "print-jis"
-            ]
-            "Show keymap.json using JP_XX"
         , lableWithHelp "Debounce" "Matrix scan debounce setting"
         , spinBox model.setupRequirement.debounce
             ""
@@ -1103,11 +1050,7 @@ viewEditConfig model =
         [ Button.primary
         , Button.block
         , Button.attrs [ Spacing.mt3 ]
-        , if model.setupRequirement.keyboard.name == "" then
-            Button.onClick UploadConfigRequested
-
-          else
-            Button.onClick UpdateConfig
+        , Button.onClick UpdateConfig
         , Button.disabled
             (case model.updateProgress of
                 Updating _ ->
@@ -1177,10 +1120,50 @@ spinBox value unit increment decrement =
 
 viewEditKeymap : Model -> List (Html Msg)
 viewEditKeymap model =
-    [ text "Use "
-    , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
-    , text " or "
-    , a [ href "https://sekigon-gonnoc.github.io/qmk_configurator", target "_blank" ] [ text "QMK Configurator for BLE Micro Pro" ]
+    [ text "Select keyboard"
+    , Input.text [ Input.onInput InputKeyboardFilter, Input.attrs [ Html.Attributes.value model.filterText ], Input.placeholder "Filter text" ]
+    , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
+        List.map
+            (\n -> Select.item [] [ text n ])
+            (filterList
+                (if model.needsHelp then
+                    model.setupRequirement.keyboard.name
+
+                 else
+                    model.filterText
+                )
+                ([ "", "upload your own" ]
+                    ++ List.map
+                        (\k -> k.name)
+                        model.appInfo.keyboards
+                )
+            )
+    , updateProgressInfo model Nothing
+    , Button.button
+        [ Button.primary
+        , Button.block
+        , Button.attrs [ Spacing.mt3 ]
+        , Button.onClick UpdateEeprom
+        , Button.disabled
+            (case model.updateProgress of
+                Updating _ ->
+                    True
+
+                _ ->
+                    False
+            )
+        ]
+        (progressSpinner
+            model
+            "Update"
+        )
+    , div []
+        [ text "Use "
+        , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
+        , text " or "
+        , a [ href "https://vial.rocks/", target "_blank" ] [ text "Vial" ]
+        , text " to edit keymap"
+        ]
     ]
 
 
@@ -1197,32 +1180,31 @@ viewSlave model =
     ]
 
 
-filterOrAll : String -> List String -> List String
-filterOrAll key list =
-    let
-        res =
-            List.filter (\m -> String.contains key m) list
-    in
-    if List.isEmpty res then
-        list
-
-    else
-        res
+filterList : String -> List String -> List String
+filterList key list =
+    List.filter (\m -> String.contains key m) list
 
 
 navbar : Model -> Html Msg
 navbar model =
     Navbar.config NavbarMsg
         |> Navbar.items
-            [ Navbar.itemLink [ href "#/home" ] [ text "Home" ]
-
-            -- , Navbar.itemLink [ href "/keyboard" ] [ text "Select Keyboard" ]
-            , Navbar.itemLink [ href "#/update/bootloader" ] [ text "Update Bootloader" ]
-            , Navbar.itemLink [ href "#/update/application" ] [ text "Update Application" ]
-            , Navbar.itemLink [ href "#/config" ] [ text "Edit Config" ]
-            , Navbar.itemLink [ href "#/keymap" ] [ text "Edit Keymap" ]
+            [ makeNavItem model.url.fragment "#/home" "Home"
+            , makeNavItem model.url.fragment "#/update/bootloader" "Update Bootloader"
+            , makeNavItem model.url.fragment "#/update/application" "Update Application"
+            , makeNavItem model.url.fragment "#/config" "Edit config"
+            , makeNavItem model.url.fragment "#/keymap" "Write default keymap"
             ]
         |> Navbar.view model.navbarState
+
+
+makeNavItem : Maybe String -> String -> String -> Navbar.Item msg
+makeNavItem urlFragment link str =
+    if String.concat [ "#", Maybe.withDefault "" urlFragment ] == link then
+        Navbar.itemLink [ href link, style "font-weight" "bold" ] [ text str ]
+
+    else
+        Navbar.itemLink [ href link ] [ text str ]
 
 
 viewLink : String -> Html msg

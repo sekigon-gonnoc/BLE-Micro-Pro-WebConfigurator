@@ -206,7 +206,7 @@ class DfuBootloader {
         (size >> 8) & 0xff,
         (size >> 16) & 0xff,
         (size >> 24) & 0xff,
-      ])
+      ]),
     );
     await this.waitReceive();
 
@@ -290,7 +290,7 @@ class DfuBootloader {
   private async streamData(
     data: Uint8Array,
     crc: number,
-    offset: number
+    offset: number,
   ): Promise<number> {
     let idx = 0;
     let len = data.length;
@@ -319,8 +319,8 @@ class DfuBootloader {
     if (crc != crc_response.crc) {
       console.error(
         `CRC Error: Expect: 0x${crc.toString(
-          16
-        )}, Received: 0x${crc_response.crc.toString(16)}`
+          16,
+        )}, Received: 0x${crc_response.crc.toString(16)}`,
       );
       return Promise.reject(new Error("CRC Error."));
     }
@@ -377,7 +377,7 @@ class DfuBootloader {
     if (msg[1] != this.sending_opcode) {
       // error
       console.error(
-        `invalid response: different opcode. expect ${this.sending_opcode}, received ${msg[1]}`
+        `invalid response: different opcode. expect ${this.sending_opcode}, received ${msg[1]}`,
       );
     }
 
@@ -436,7 +436,7 @@ class DfuBootloader {
         await this.streamData(
           packet.slice(response.offset),
           expexted_crc,
-          response.offset
+          response.offset,
         );
       }
 
@@ -447,7 +447,7 @@ class DfuBootloader {
 
     let response: ObjectResponse = Object.assign(
       {},
-      await this.selectCommand()
+      await this.selectCommand(),
     );
     console.log("Select Command:", response);
 
@@ -472,7 +472,7 @@ class DfuBootloader {
 
   async sendFirmware(
     firm: Uint8Array,
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
   ) {
     let tryToResume = async (response: ObjectResponse) => {
       console.log("try to resume firmware packet");
@@ -499,12 +499,12 @@ class DfuBootloader {
 
         let transmit_data = firm.slice(
           response.offset,
-          response.offset + response.max_size - emptyBytesInPage
+          response.offset + response.max_size - emptyBytesInPage,
         );
         response.crc = await this.streamData(
           transmit_data,
           response.crc,
-          response.offset
+          response.offset,
         );
       }
 
@@ -537,7 +537,7 @@ class DfuBootloader {
       console.log(
         `send a chunk of firmware image [${idx}:${
           idx + response.max_size
-        }]/${len} => ${Math.floor((idx / len) * 100)}%`
+        }]/${len} => ${Math.floor((idx / len) * 100)}%`,
       );
       let transmit_data = firm.slice(idx, idx + response.max_size);
 
