@@ -9,6 +9,26 @@
     "split": true,
     "lpme": true
   },
+  "ble_micro_pro": {
+    "name": "ble_micro_pro",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "ble_micro_pro_split": {
+    "name": "ble_micro_pro_split",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
   "crkbd_rev1": {
     "name": "crkbd_rev1",
     "layout": [
