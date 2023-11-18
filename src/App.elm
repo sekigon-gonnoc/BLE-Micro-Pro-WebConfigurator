@@ -814,11 +814,8 @@ useLpmeCheckbox model =
 viewKeyboardSelect : Model -> List (Html Msg)
 viewKeyboardSelect model =
     [ text "Select Keyboard"
-    , Select.select
-        [ Select.id "select-keyboard"
-        , Select.onChange SelectKeyboard
-        ]
-      <|
+    , Input.text [ Input.onInput InputKeyboardFilter, Input.attrs [ Html.Attributes.value model.filterText ], Input.placeholder "Filter text" ]
+    , Select.select [ Select.onChange SelectKeyboard, Select.attrs [ Html.Attributes.value model.setupRequirement.keyboard.name ] ] <|
         (Select.item [] []
             :: List.map
                 (\k -> Select.item [] [ text k.name ])
