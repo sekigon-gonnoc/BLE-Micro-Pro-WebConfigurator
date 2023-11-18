@@ -183,7 +183,7 @@ app.ports.updateEeprom.subscribe(async (setup) => {
     const fileBuffer = new Uint8Array(
       await fetch(`${setup.keyboadrd}_default.bin`).then((res) =>
         res.arrayBuffer(),
-      ),
+      ).catch([]),
     );
 
     if (fileBuffer.length != 0) {
