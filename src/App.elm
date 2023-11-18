@@ -410,13 +410,11 @@ update msg model =
                         , "#/update/bootloader"
                         , "#/update/application"
                         , "#/config"
-                        , "#/keymap"
                         ]
 
                     else
                         [ "#/update/application"
                         , "#/config"
-                        , "#/keymap"
                         ]
               }
             , Cmd.batch [ Nav.pushUrl model.key "#/update/bootloader" ]
