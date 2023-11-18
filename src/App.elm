@@ -1025,7 +1025,7 @@ viewEditConfig model =
             " min."
             (IncrementAutoSleep 10)
             (IncrementAutoSleep -10)
-        , lableWithHelp "Connection inteval (Peripheral)" "Connection interval with PC or master side"
+        , lableWithHelp "Connection interval (Peripheral)" "Connection interval with PC or master side"
         , spinBox model.setupRequirement.periphInterval
             " ms"
             (IncrementPeriphInterval 5)
@@ -1035,7 +1035,7 @@ viewEditConfig model =
                 (not (useSlave model.setupRequirement.role))
             )
             [ lableWithHelp
-                "Connection inteval (Central)"
+                "Connection interval (Central)"
                 "Connection interval with slave side"
             , spinBox model.setupRequirement.centralInterval
                 " ms"
