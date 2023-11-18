@@ -1129,8 +1129,14 @@ viewEditKeymap model =
                     model.filterText
                 )
                 ([ "", "upload your own" ]
-                    ++ List.map
-                        (\k -> k.name)
+                    ++ List.filterMap
+                        (\k ->
+                            if List.length k.keymap > 0 then
+                                Just k.name
+
+                            else
+                                Nothing
+                        )
                         model.appInfo.keyboards
                 )
             )

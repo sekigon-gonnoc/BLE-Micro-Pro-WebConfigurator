@@ -181,9 +181,9 @@ function assignSetup(fileBuffer, setup) {
 app.ports.updateEeprom.subscribe(async (setup) => {
   if (setup.keyboard) {
     const fileBuffer = new Uint8Array(
-      await fetch(`${setup.keyboadrd}_default.bin`).then((res) =>
-        res.arrayBuffer(),
-      ).catch([]),
+      await fetch(`${setup.keyboadrd}_default.bin`)
+        .then((res) => res.arrayBuffer())
+        .catch([]),
     );
 
     if (fileBuffer.length != 0) {
