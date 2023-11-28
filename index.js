@@ -13,7 +13,7 @@ const app = Elm.App.init({
     webSerialEnabled: navigator.serial ? true : false,
     keyboards: Object.values(keyboards),
     bootloaders: ["ble_micro_pro_bootloader_1_0_2_rc"],
-    applications: ["ble_micro_pro_vial_1_0_2_rc"],
+    applications: ["ble_micro_pro_vial_1_0_4"],
   },
 });
 
