@@ -181,7 +181,7 @@ function assignSetup(fileBuffer, setup) {
 app.ports.updateEeprom.subscribe(async (setup) => {
   if (setup.keyboard) {
     const fileBuffer = new Uint8Array(
-      await fetch(`${setup.keyboadrd}_default.bin`)
+      await fetch(`config/${setup.keyboard}_default.bin`)
         .then((res) => res.arrayBuffer())
         .catch([]),
     );
@@ -190,16 +190,16 @@ app.ports.updateEeprom.subscribe(async (setup) => {
       await transferFileByXmodem(fileBuffer);
       return;
     }
+  } else {
+    loadUserFile(".bin", async (fileBuffer) => {
+      if (fileBuffer[0] != 0xe6 || fileBuffer[1] != 0xfe) {
+        console.log("file header does not match");
+        notifyUpdateError(`Invalid eeprom file. `);
+        return;
+      }
+      await transferFileByXmodem(fileBuffer);
+    });
   }
-
-  loadUserFile(".bin", async (fileBuffer) => {
-    if (fileBuffer[0] != 0xe6 || fileBuffer[1] != 0xfe) {
-      console.log("file header does not match");
-      notifyUpdateError(`Invalid eeprom file. `);
-      return;
-    }
-    await transferFileByXmodem(fileBuffer);
-  });
 });
 
 async function loadUserFile(extension, callback) {

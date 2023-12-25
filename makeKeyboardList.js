@@ -26,6 +26,10 @@ for (const file of fileList) {
   } else if (file.includes("master_config.bin")) {
     keyboard_list[keyboard].split = true;
   }
+
+  if (fileList.findIndex((k) => k === `${keyboard}_default.bin`) >= 0) {
+    keyboard_list[keyboard].keymap = [`${keyboard}_default.bin`];
+  }
 }
 
 fs.writeFileSync("src/keyboards.json", JSON.stringify(keyboard_list, null, 2));

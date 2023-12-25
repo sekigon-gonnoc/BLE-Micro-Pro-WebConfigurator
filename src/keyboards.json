@@ -149,6 +149,30 @@
     "split": false,
     "lpme": false
   },
+  "hayashi_CannonballCURSORPAD": {
+    "name": "hayashi_CannonballCURSORPAD",
+    "layout": [
+      ""
+    ],
+    "keymap": [
+      "hayashi_CannonballCURSORPAD_default.bin"
+    ],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
+  "hayashi_HandymanMACROPAD": {
+    "name": "hayashi_HandymanMACROPAD",
+    "layout": [
+      ""
+    ],
+    "keymap": [
+      "hayashi_HandymanMACROPAD_default.bin"
+    ],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
   "helix_pico": {
     "name": "helix_pico",
     "layout": [
