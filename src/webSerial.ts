@@ -1,3 +1,8 @@
+interface SerialPortFilter {
+  usbVendorId: number;
+  usbProductId: number;
+}
+
 class WebSerial {
   private receiveCallback: ((msg: Uint8Array) => void) | null = null;
   private closeCallback: (() => void) | null = null;
@@ -28,12 +33,17 @@ class WebSerial {
     this.errorCallback = handler;
   }
 
-  async open(onConnect: () => void | null) {
-    this.port = await navigator.serial.requestPort();
+  async open(
+    onConnect: () => void | null,
+    baudrate: number = 115200,
+    filters: { filters: SerialPortFilter[] } | undefined = undefined,
+  ) {
+    this.port = await navigator.serial.requestPort(filters);
 
     try {
-      await this.port.open({ baudRate: 115200, buffersize: 81920 });
+      await this.port.open({ baudRate: baudrate, buffersize: 81920 });
     } catch (e) {
+      console.error(e);
       await this.port.close();
       return Promise.reject(e);
     }
@@ -56,6 +66,10 @@ class WebSerial {
     await this.sleep(1000);
   }
 
+  getInfo() {
+    return this.port?.getInfo();
+  }
+
   private async readLoop() {
     if (this.port == null) {
       console.error("failed to read from serial port");
@@ -69,13 +83,10 @@ class WebSerial {
         const { done, value } = await this.reader.read();
 
         if (value) {
-          console.log(`serial received: ${value.byteLength}byte`);
-          try {
-            console.log(new TextDecoder().decode(value));
-          } catch (error) {}
+          // console.log(`serial received: ${value.byteLength}byte`);
 
           if (this.receiveCallback) {
-            await this.receiveCallback(value);
+            this.receiveCallback(value);
           }
         }
 
@@ -111,7 +122,7 @@ class WebSerial {
 
   async write(msg: Uint8Array) {
     if (this.writable == null) {
-      throw new Error("Port is not available");
+      return;
     }
 
     const writer = this.writable.getWriter();
@@ -146,15 +157,11 @@ class WebSerial {
       this.closeCallback();
     }
 
-    this.receiveCallback = null;
-    this.closeCallback = null;
-
     if (this.port) {
       try {
         await this.port.close();
         this.port = null;
         this._connected = false;
-        this.errorCallback = null;
       } catch (e) {
         console.error(e);
       }
@@ -164,4 +171,4 @@ class WebSerial {
   }
 }
 
-export { WebSerial };
+export { WebSerial, SerialPortFilter };

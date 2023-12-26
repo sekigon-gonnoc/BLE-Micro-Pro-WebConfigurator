@@ -1,5 +1,6 @@
 import { WebSerial } from "./src/webSerial";
 import { DfuBootloader } from "./src/dfu";
+import { BleMicroPro } from "./src/bleMicroPro";
 import { Xmodem } from "./src/xmodem";
 import "bootstrap/dist/css/bootstrap.min.css";
 import keyboards from "./src/keyboards.json";
@@ -17,7 +18,8 @@ const app = Elm.App.init({
   },
 });
 
-const serial = new WebSerial(128, 5);
+const device1 = new WebSerial(128, 5);
+const device2 = new WebSerial(128, 5);
 let serialReceivedStr = "";
 
 function sleep(ms) {
@@ -60,28 +62,28 @@ app.ports.updateFirmware.subscribe(async (command) => {
 
   console.log("target firmware is found");
 
-  const dfu = new DfuBootloader(serial);
+  const dfu = new DfuBootloader(device1);
 
-  if (serial.connected) {
+  if (device1.connected) {
     try {
       console.log("close previous port");
-      await serial.close();
+      await device1.close();
     } catch (e) {}
   }
 
   try {
-    await serial.open();
+    await device1.open();
   } catch (e) {
     console.error(e);
     notifyUpdateError(e.message);
     return;
   }
-  serial.startReadLoop();
+  device1.startReadLoop();
 
   let is_dfu = false;
   try {
     console.log("send dfu wake up command");
-    await serial.writeString("\x03\ndfu\n\xc0");
+    await device1.writeString("\x03\ndfu\n\xc0");
   } catch (e) {
     console.error(e);
 
@@ -123,7 +125,7 @@ app.ports.updateFirmware.subscribe(async (command) => {
   }
 
   console.log("update completed");
-  await serial.close();
+  await device1.close();
 });
 
 app.ports.updateConfig.subscribe(async (setup) => {
@@ -224,8 +226,8 @@ async function loadUserFile(extension, callback) {
 
 async function transferFileByXmodem(data) {
   try {
-    await serial.open();
-    serial.startReadLoop();
+    await device1.open();
+    device1.startReadLoop();
   } catch (e) {
     console.error(e);
     notifyUpdateError(e.message);
@@ -235,9 +237,9 @@ async function transferFileByXmodem(data) {
   let progress = 0;
   notifyUpdateProgress(0);
 
-  await serial.writeString("xmodem\n");
+  await device1.writeString("xmodem\n");
 
-  const xmodem = new Xmodem(serial, data);
+  const xmodem = new Xmodem(device1, data);
 
   while (xmodem.getProgress() < 100.0) {
     await sleep(30);
@@ -247,3 +249,50 @@ async function transferFileByXmodem(data) {
     }
   }
 }
+
+async function updatePairList(devNum, bmp) {
+  try {
+    const pairs = JSON.parse(await bmp.sendCommand("show"));
+    const msg = {
+      device: devNum,
+      pairs: pairs.bonding,
+    };
+    console.log(msg);
+    app.ports.updatePairListResult.send(msg);
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+  }
+}
+
+app.ports.updatePairList.subscribe(async (devNum) => {
+  const device = devNum === 0 ? device1 : device2;
+  const bmp = new BleMicroPro(device);
+  updatePairList(devNum, bmp);
+});
+
+app.ports.advertiseToDevice.subscribe(async (arg) => {
+  console.log(arg);
+  const device = arg[0] === 0 ? device1 : device2;
+  const bmp = new BleMicroPro(device);
+
+  try {
+    await bmp.sendCommand(`adv ${arg[1]}`);
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+  }
+});
+
+app.ports.deletePairing.subscribe(async (arg) => {
+  const device = arg[0] === 0 ? device1 : device2;
+  const bmp = new BleMicroPro(device);
+
+  try {
+    await bmp.sendCommand(`del ${arg[1]}`);
+    updatePairList(arg[0], bmp);
+  } catch (e) {
+    console.error(e);
+    notifyUpdateError(e.message);
+  }
+});

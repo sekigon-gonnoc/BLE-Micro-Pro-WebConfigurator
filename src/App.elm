@@ -42,7 +42,19 @@ port updateConfig : E.Value -> Cmd msg
 port updateEeprom : E.Value -> Cmd msg
 
 
+port updatePairList : Int -> Cmd msg
+
+
+port advertiseToDevice : ( Int, Int ) -> Cmd msg
+
+
+port deletePairing : ( Int, Int ) -> Cmd msg
+
+
 port updateResult : (E.Value -> msg) -> Sub msg
+
+
+port updatePairListResult : (E.Value -> msg) -> Sub msg
 
 
 main =
@@ -85,6 +97,8 @@ type alias Model =
     , bootloader : Maybe String
     , application : Maybe String
     , updateProgress : UpdateProgress
+    , device1PairList : PairList
+    , device2PairList : PairList
     , filterText : String
     }
 
@@ -141,6 +155,18 @@ type alias UpdateResult =
     }
 
 
+type alias Pairing =
+    { id : Int
+    , pairType : String
+    , name : String
+    , mac : String
+    }
+
+
+type alias PairList =
+    { device : Int, pairs : List Pairing }
+
+
 flagDecoder : Decoder Flag
 flagDecoder =
     D.map5 Flag
@@ -194,6 +220,15 @@ updateProgressEncode json =
         Error result.message
 
 
+updatePairListEncode : E.Value -> PairList
+updatePairListEncode json =
+    let
+        decoder =
+            D.map2 PairList (field "device" D.int) (field "pairs" (D.list <| D.map4 Pairing (field "id" D.int) (field "type" D.string) (field "name" D.string) (field "mac" D.string)))
+    in
+    Result.withDefault { device = 0, pairs = [ { id = 1, pairType = "Error", name = "Error", mac = "" } ] } (D.decodeValue decoder json)
+
+
 init : D.Value -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
 init flags url key =
     let
@@ -226,6 +261,8 @@ init flags url key =
       , bootloader = Nothing
       , application = Nothing
       , updateProgress = None
+      , device1PairList = { device = 0, pairs = [] }
+      , device2PairList = { device = 1, pairs = [] }
       , filterText = ""
       }
     , Cmd.batch
@@ -256,6 +293,7 @@ subscriptions model =
         [ Navbar.subscriptions model.navbarState NavbarMsg
         , Carousel.subscriptions model.carouselState CarouselMsg
         , updateResult UpdateResultMsg
+        , updatePairListResult UpdatePairListMsg
         ]
 
 
@@ -283,6 +321,11 @@ type Msg
     | UpdateConfig
     | UpdateEeprom
     | UpdateResultMsg E.Value
+    | UpdateDevice1PairList
+    | UpdateDevice2PairList
+    | UpdatePairListMsg E.Value
+    | AdvertiseToDevice Int Int
+    | DeletePairing Int Int
     | IncrementDebounce Int
     | IncrementAutoSleep Int
     | IncrementPeriphInterval Int
@@ -537,6 +580,32 @@ update msg model =
             , Cmd.none
             )
 
+        UpdateDevice1PairList ->
+            ( model, updatePairList 0 )
+
+        UpdateDevice2PairList ->
+            ( model, updatePairList 1 )
+
+        UpdatePairListMsg result ->
+            let
+                newPairList =
+                    updatePairListEncode result
+
+                newModel =
+                    if newPairList.device == 0 then
+                        { model | device1PairList = newPairList }
+
+                    else
+                        { model | device2PairList = newPairList }
+            in
+            ( newModel, Cmd.none )
+
+        AdvertiseToDevice dev id ->
+            ( model, advertiseToDevice ( dev, id ) )
+
+        DeletePairing dev id ->
+            ( model, deletePairing ( dev, id ) )
+
         IncrementDebounce step ->
             let
                 debounce =
@@ -720,6 +789,9 @@ view model =
 
                         Just "/config" ->
                             viewEditConfig model
+
+                        Just "/pairing" ->
+                            viewPairing model
 
                         Just "/slave" ->
                             viewSlave model
@@ -1166,6 +1238,66 @@ viewEditKeymap model =
     ]
 
 
+viewPair : Int -> PairList -> List (Html Msg)
+viewPair device pairList =
+    List.map
+        (\p ->
+            div []
+                [ h5 [ Spacing.mt2 ] [ text (p.name ++ " " ++ p.pairType) ]
+                , Button.button
+                    [ Button.outlinePrimary
+                    , Button.attrs [ Spacing.ml3 ]
+                    , Button.onClick (AdvertiseToDevice device p.id)
+                    ]
+                    [ text "Connect" ]
+                , Button.button
+                    [ Button.outlineDanger
+                    , Button.attrs [ Spacing.ml1 ]
+                    , Button.onClick (DeletePairing device p.id)
+                    ]
+                    [ text "Delete" ]
+                ]
+        )
+        pairList.pairs
+
+
+viewPairing : Model -> List (Html Msg)
+viewPairing model =
+    viewPair 0 model.device1PairList
+        ++ [ Button.button
+                [ Button.primary
+                , Button.block
+                , Button.attrs [ Spacing.mt3 ]
+                , Button.onClick UpdateDevice1PairList
+                ]
+                [ text "Update Device1 Pair List" ]
+           , Button.button
+                [ Button.primary
+                , Button.block
+                , Button.attrs [ Spacing.mt1 ]
+                , Button.onClick (AdvertiseToDevice 0 255)
+                ]
+                [ text "Pair Device1 with New Device" ]
+           ]
+        ++ viewPair 1 model.device2PairList
+        ++ [ Button.button
+                [ Button.primary
+                , Button.block
+                , Button.attrs [ Spacing.mt3 ]
+                , Button.onClick UpdateDevice2PairList
+                ]
+                [ text "Update Device2 Pair List" ]
+           , Button.button
+                [ Button.primary
+                , Button.block
+                , Button.attrs [ Spacing.mt1 ]
+                , Button.onClick (AdvertiseToDevice 1 255)
+                ]
+                [ text "Pair Device2 with New Device" ]
+           ]
+        ++ [ updateProgressInfo model Nothing ]
+
+
 viewSlave : Model -> List (Html Msg)
 viewSlave model =
     [ text "スレーブ側のBLE Micro Proに差し替えてください"
@@ -1193,6 +1325,7 @@ navbar model =
             , makeNavItem model.url.fragment "#/update/application" "Update Application"
             , makeNavItem model.url.fragment "#/config" "Edit config"
             , makeNavItem model.url.fragment "#/keymap" "Write default keymap"
+            , makeNavItem model.url.fragment "#/pairing" "Pairing"
             ]
         |> Navbar.view model.navbarState
 
