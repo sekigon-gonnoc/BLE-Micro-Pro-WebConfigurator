@@ -18,7 +18,7 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_1_0_2_rc",
     ],
     applications: [
-      "ble_micro_pro_vial_1_1_0",
+      "ble_micro_pro_vial_1_1_1",
       "ble_micro_pro_vial_1_0_8",
       "ble_micro_pro_vial_1_0_5",
     ],
