@@ -3,8 +3,6 @@ port module App exposing (..)
 import Bootstrap.Alert as Alert
 import Bootstrap.Button as Button
 import Bootstrap.CDN as CDN
-import Bootstrap.Carousel as Carousel exposing (Cycling(..), defaultStateOptions)
-import Bootstrap.Carousel.Slide as Slide
 import Bootstrap.Form as Form
 import Bootstrap.Form.Checkbox as Checkbox
 import Bootstrap.Form.Input as Input
@@ -93,7 +91,6 @@ type alias Model =
     , needsHelp : Bool
     , setupRequirement : SetupRequirement
     , setupProcedure : List String
-    , carouselState : Carousel.State
     , bootloader : Maybe String
     , application : Maybe String
     , updateProgress : UpdateProgress
@@ -257,7 +254,6 @@ init flags url key =
             , autoSleep = 0
             }
       , setupProcedure = []
-      , carouselState = Carousel.initialState
       , bootloader = Nothing
       , application = Nothing
       , updateProgress = None
@@ -291,7 +287,6 @@ subscriptions : Model -> Sub Msg
 subscriptions model =
     Sub.batch
         [ Navbar.subscriptions model.navbarState NavbarMsg
-        , Carousel.subscriptions model.carouselState CarouselMsg
         , updateResult UpdateResultMsg
         , updatePairListResult UpdatePairListMsg
         ]
@@ -305,7 +300,6 @@ type Msg
     = LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
     | NavbarMsg Navbar.State
-    | CarouselMsg Carousel.Msg
     | StartNavigation
     | SelectKeyboard String
     | SelectBootloader String
@@ -406,7 +400,6 @@ update msg model =
         UrlChanged url ->
             ( { model
                 | url = url
-                , carouselState = Carousel.toSlide 0 model.carouselState
                 , updateProgress = None
               }
             , Cmd.none
@@ -414,9 +407,6 @@ update msg model =
 
         NavbarMsg state ->
             ( { model | navbarState = state }, Cmd.none )
-
-        CarouselMsg subMsg ->
-            ( { model | carouselState = Carousel.update subMsg model.carouselState }, Cmd.none )
 
         StartNavigation ->
             ( { model | needsHelp = True }
@@ -816,13 +806,7 @@ viewFooter model =
 viewHome : Model -> List (Html Msg)
 viewHome model =
     [ h4 [ Spacing.mt4, align "center" ] [ text "BLE Micro Pro Web Configurator" ]
-    , Carousel.config CarouselMsg [ align "center" ]
-        |> Carousel.withControls
-        |> Carousel.withIndicators
-        |> Carousel.slides
-            [ Slide.config [] (Slide.image [] "assets/ble_micro_pro.svg")
-            ]
-        |> Carousel.view model.carouselState
+    , img [ src "assets/ble_micro_pro.svg", style "display" "block", style "margin" "auto" ] []
     , Button.linkButton
         [ Button.outlineInfo
         , Button.block
