@@ -116,6 +116,7 @@ type alias Flag =
     , keyboards : List Keyboard
     , bootloaders : List String
     , applications : List String
+    , uploadLabel : String  -- "upload your own" in the selection list
     }
 
 
@@ -166,7 +167,7 @@ type alias PairList =
 
 flagDecoder : Decoder Flag
 flagDecoder =
-    D.map5 Flag
+    D.map6 Flag
         (field "revision" D.string)
         (field "webSerialEnabled" bool)
         (field "keyboards"
@@ -184,6 +185,7 @@ flagDecoder =
         )
         (field "bootloaders" (D.list string))
         (field "applications" (D.list string))
+        (field "uploadLabel" string)
 
 
 updateProgressEncode : E.Value -> UpdateProgress
@@ -241,7 +243,7 @@ init flags url key =
                     flag
 
                 Err _ ->
-                    Flag "" False [] [] []
+                    Flag "" False [] [] [] "(uploadLabel)"
       , needsHelp = False
       , setupRequirement =
             { keyboard = Keyboard "" [] [] "" False False
@@ -714,7 +716,7 @@ updateKeyboard model name =
     let
         keyboard =
             Maybe.withDefault
-                (Keyboard "" [] [] "" False False)
+                (Keyboard name [] [] "" False False)
                 (List.head
                     (List.filter (\n -> n.name == name)
                         model.appInfo.keyboards
@@ -1044,7 +1046,7 @@ viewEditConfig model =
                  else
                     model.filterText
                 )
-                ([ "", "upload your own" ]
+                ([ "", model.appInfo.uploadLabel ]
                     ++ List.map
                         (\k -> k.name)
                         model.appInfo.keyboards
@@ -1181,7 +1183,7 @@ viewEditKeymap model =
                  else
                     model.filterText
                 )
-                ([ "", "upload your own" ]
+                ([ "", model.appInfo.uploadLabel ]
                     ++ List.filterMap
                         (\k ->
                             if List.length k.keymap > 0 then
