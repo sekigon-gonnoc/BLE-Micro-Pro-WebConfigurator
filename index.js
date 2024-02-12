@@ -7,6 +7,7 @@ import keyboards from "./src/keyboards.json";
 import { Elm } from "./src/App.elm";
 import { crc16 } from "crc";
 
+const uploadLabel = "upload your own";
 const app = Elm.App.init({
   node: document.getElementById("main"),
   flags: {
@@ -19,6 +20,7 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_1_0_2_rc",
     ],
     applications: ["ble_micro_pro_vial_1_1_2", "ble_micro_pro_vial_1_0_8"],
+    uploadLabel: uploadLabel,
   },
 });
 
@@ -135,8 +137,8 @@ app.ports.updateFirmware.subscribe(async (command) => {
 app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
 
-  if (!setup.keyboard) {
-    loadUserFile(".bin", async (fileBuffer) => {
+  if (!setup.keyboard || setup.keyboard == uploadLabel) {
+      loadUserFile(".bin", async (fileBuffer) => {
       if (
         fileBuffer[0] != 0xae ||
         fileBuffer[1] != 0xfa ||
