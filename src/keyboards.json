@@ -583,6 +583,16 @@
     "split": true,
     "lpme": false
   },
+  "sekigon_gtrk67": {
+    "name": "sekigon_gtrk67",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "sekigon_gtrk67",
+    "split": false,
+    "lpme": false
+  },
   "takashicompany_endzone34": {
     "name": "takashicompany_endzone34",
     "layout": [

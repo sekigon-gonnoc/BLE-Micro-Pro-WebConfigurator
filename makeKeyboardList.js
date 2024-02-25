@@ -1,6 +1,7 @@
 const fs = require("fs");
 
 const fileList = fs.readdirSync("public/config");
+const firmList = fs.readdirSync("public/application");
 
 let keyboard_list = {};
 
@@ -14,7 +15,7 @@ for (const file of fileList) {
       name: keyboard,
       layout: [""],
       keymap: [],
-      firmware: "ble_micro_pro",
+      firmware: firmList.some(f => f.startsWith(keyboard)) ? keyboard : "ble_micro_pro",
       split: false,
       lpme: false,
     };
