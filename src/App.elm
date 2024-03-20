@@ -370,6 +370,11 @@ useLpme role =
             False
 
 
+useUserUploadConfig : Model -> Bool
+useUserUploadConfig model =
+    (model.setupRequirement.keyboard.name == model.appInfo.uploadLabel) || (model.setupRequirement.keyboard.name == "")
+
+
 goNextStep : Model -> ( Model, Cmd Msg )
 goNextStep model =
     let
@@ -864,7 +869,7 @@ useLpmeCheckbox model =
         , Checkbox.id "lpme"
         , Checkbox.onCheck UseLpme
         , Checkbox.disabled
-            (not model.setupRequirement.keyboard.lpme && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
+            (not model.setupRequirement.keyboard.lpme && not (useUserUploadConfig model))
         ]
         "Use with LPME-IO"
 
@@ -1052,17 +1057,17 @@ viewEditConfig model =
                         model.appInfo.keyboards
                 )
             )
-    , div (hidden (model.setupRequirement.keyboard.name == ""))
+    , div []
         [ useLpmeCheckbox model
         , Checkbox.checkbox
-            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
+            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && not (useUserUploadConfig model))
             , Checkbox.checked (isSlave model.setupRequirement.role)
             , Checkbox.onCheck IsSlave
             , Checkbox.id "is-slave"
             ]
             "Is Slave"
         , Checkbox.checkbox
-            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
+            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && not (useUserUploadConfig model))
             , Checkbox.checked model.setupRequirement.isLeft
             , Checkbox.onCheck IsLeft
             , Checkbox.id "is-left"
