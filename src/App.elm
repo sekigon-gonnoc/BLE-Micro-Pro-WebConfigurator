@@ -116,7 +116,7 @@ type alias Flag =
     , keyboards : List Keyboard
     , bootloaders : List String
     , applications : List String
-    , uploadLabel : String  -- "upload your own" in the selection list
+    , uploadLabel : String -- "upload your own" in the selection list
     }
 
 
@@ -864,7 +864,7 @@ useLpmeCheckbox model =
         , Checkbox.id "lpme"
         , Checkbox.onCheck UseLpme
         , Checkbox.disabled
-            (not model.setupRequirement.keyboard.lpme)
+            (not model.setupRequirement.keyboard.lpme && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
         ]
         "Use with LPME-IO"
 
@@ -1055,14 +1055,14 @@ viewEditConfig model =
     , div (hidden (model.setupRequirement.keyboard.name == ""))
         [ useLpmeCheckbox model
         , Checkbox.checkbox
-            [ Checkbox.disabled (not model.setupRequirement.keyboard.split)
+            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
             , Checkbox.checked (isSlave model.setupRequirement.role)
             , Checkbox.onCheck IsSlave
             , Checkbox.id "is-slave"
             ]
             "Is Slave"
         , Checkbox.checkbox
-            [ Checkbox.disabled (not model.setupRequirement.keyboard.split)
+            [ Checkbox.disabled (not model.setupRequirement.keyboard.split && model.setupRequirement.keyboard.name /= model.appInfo.uploadLabel)
             , Checkbox.checked model.setupRequirement.isLeft
             , Checkbox.onCheck IsLeft
             , Checkbox.id "is-left"

@@ -19,7 +19,11 @@ const app = Elm.App.init({
       "ble_micro_pro_bootloader_1_1_0",
       "ble_micro_pro_bootloader_1_0_2_rc",
     ],
-    applications: ["ble_micro_pro_vial_1_1_2", "sekigon_gtrk67_vial_1_1_2", "ble_micro_pro_vial_1_0_8"],
+    applications: [
+      "ble_micro_pro_vial_1_1_2",
+      "sekigon_gtrk67_vial_1_1_2",
+      "ble_micro_pro_vial_1_0_8",
+    ],
     uploadLabel: uploadLabel,
   },
 });
@@ -138,7 +142,7 @@ app.ports.updateConfig.subscribe(async (setup) => {
   console.log(setup);
 
   if (!setup.keyboard || setup.keyboard == uploadLabel) {
-      loadUserFile(".bin", async (fileBuffer) => {
+    loadUserFile(".bin", async (fileBuffer) => {
       if (
         fileBuffer[0] != 0xae ||
         fileBuffer[1] != 0xfa ||

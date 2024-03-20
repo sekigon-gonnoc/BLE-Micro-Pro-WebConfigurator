@@ -15,7 +15,9 @@ for (const file of fileList) {
       name: keyboard,
       layout: [""],
       keymap: [],
-      firmware: firmList.some(f => f.startsWith(keyboard)) ? keyboard : "ble_micro_pro",
+      firmware: firmList.some((f) => f.startsWith(keyboard))
+        ? keyboard
+        : "ble_micro_pro",
       split: false,
       lpme: false,
     };
