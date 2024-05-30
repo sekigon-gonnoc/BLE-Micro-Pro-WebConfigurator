@@ -643,6 +643,16 @@
     "split": false,
     "lpme": false
   },
+  "sekigon_torabo_tsuki": {
+    "name": "sekigon_torabo_tsuki",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "sekigon_torabo_tsuki",
+    "split": true,
+    "lpme": false
+  },
   "takashicompany_endzone34": {
     "name": "takashicompany_endzone34",
     "layout": [
