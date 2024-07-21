@@ -773,6 +773,16 @@
     "split": false,
     "lpme": false
   },
+  "yushakobo_primer79": {
+    "name": "yushakobo_primer79",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
   "yynmt_dozen0": {
     "name": "yynmt_dozen0",
     "layout": [
