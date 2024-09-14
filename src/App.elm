@@ -75,6 +75,7 @@ type UpdateProgress
     | BootloaderActivated
     | Updating Float
     | Complete
+    | CompleteBootloader
     | Error String
 
 
@@ -915,9 +916,9 @@ isDisplay bool =
         [ Display.none ]
 
 
-updateProgressInfo : Model -> Maybe String -> Html Msg
-updateProgressInfo model default =
-    case model.updateProgress of
+updateProgressInfo : UpdateProgress -> Maybe String -> Html Msg
+updateProgressInfo updateProgress default =
+    case updateProgress of
         BootloaderActivated ->
             Alert.simpleInfo
                 [ Spacing.mt1 ]
@@ -932,6 +933,11 @@ updateProgressInfo model default =
             Alert.simpleSuccess
                 [ Spacing.mt1 ]
                 [ text "Update Succeeded. Go next step." ]
+
+        CompleteBootloader ->
+            Alert.simpleSuccess
+                [ Spacing.mt1 ]
+                [ text "Update Succeeded. Replug BMP and go next step." ]
 
         _ ->
             case default of
@@ -976,14 +982,14 @@ viewUpdateFirmware model firmware =
             [ text "Select bootloader version"
             , Select.select [ Select.id "bootloader-select", Select.onChange SelectBootloader, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.bootloader ] ] <|
                 itemsFromList (bootloaderList model)
-            , updateProgressInfo model Nothing
+            , updateProgressInfo (if model.updateProgress== Complete then CompleteBootloader else model.updateProgress) Nothing
             ]
 
         Application ->
             [ text "Select application version"
             , Select.select [ Select.id "application-select", Select.onChange SelectApplication, Select.attrs [ Html.Attributes.value <| Maybe.withDefault "" model.application ] ] <|
                 itemsFromList (applicationList model)
-            , updateProgressInfo model Nothing
+            , updateProgressInfo model.updateProgress Nothing
             ]
     )
         ++ [ disableMscCheckbox model
@@ -1101,7 +1107,7 @@ viewEditConfig model =
                 (IncrementCentralInterval -5)
             ]
         ]
-    , updateProgressInfo model Nothing
+    , updateProgressInfo model.updateProgress Nothing
     , Button.button
         [ Button.primary
         , Button.block
@@ -1200,7 +1206,7 @@ viewEditKeymap model =
                         model.appInfo.keyboards
                 )
             )
-    , updateProgressInfo model Nothing
+    , updateProgressInfo model.updateProgress Nothing
     , Button.button
         [ Button.primary
         , Button.block
@@ -1286,7 +1292,7 @@ viewPairing model =
                 ]
                 [ text "Pair Device2 with New Device" ]
            ]
-        ++ [ updateProgressInfo model Nothing ]
+        ++ [ updateProgressInfo model.updateProgress Nothing ]
 
 
 viewSlave : Model -> List (Html Msg)
