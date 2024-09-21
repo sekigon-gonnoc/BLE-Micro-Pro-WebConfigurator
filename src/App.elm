@@ -1230,6 +1230,8 @@ viewEditKeymap model =
         , a [ href "https://remap-keys.app/", target "_blank" ] [ text "Remap" ]
         , text " or "
         , a [ href "https://vial.rocks/", target "_blank" ] [ text "Vial" ]
+        , text " or "
+        , a [ href "https://sekigon-gonnoc.github.io/via-custom-ui-for-vial/", target "_blank" ] [ text "VIA custom UI for Vial" ]
         , text " to edit keymap"
         ]
     ]
