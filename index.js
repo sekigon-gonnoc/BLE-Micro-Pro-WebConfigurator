@@ -21,7 +21,7 @@ const app = Elm.App.init({
     ],
     applications: [
       "ble_micro_pro_vial_1_3_4",
-      "sekigon_torabo_tsuki_vial_1_3_4",
+      "sekigon_torabo_tsuki_vial_1_3_5",
       "ble_micro_pro_vial_1_3_3",
       "sekigon_torabo_tsuki_vial_1_3_3",
       "sekigon_gtrk67_vial_1_3_3",
