@@ -16,8 +16,6 @@ const app = Elm.App.init({
     keyboards: Object.values(keyboards),
     bootloaders: [
       "ble_micro_pro_bootloader_1_3_2",
-      "ble_micro_pro_bootloader_1_3_1-1",
-      "ble_micro_pro_bootloader_1_2_2",
     ],
     applications: [
       "ble_micro_pro_vial_1_3_6",
@@ -25,9 +23,6 @@ const app = Elm.App.init({
       "ble_micro_pro_vial_1_3_3",
       "sekigon_torabo_tsuki_vial_1_3_3",
       "sekigon_gtrk67_vial_1_3_3",
-      "ble_micro_pro_vial_1_2_3",
-      "sekigon_torabo_tsuki_vial_1_2_3",
-      "sekigon_gtrk67_vial_1_2_3",
     ],
     uploadLabel: uploadLabel,
   },
