@@ -523,6 +523,16 @@
     "split": true,
     "lpme": false
   },
+  "salicylic_acid3_7spro_max": {
+    "name": "salicylic_acid3_7spro_max",
+    "layout": [
+      ""
+    ],
+    "keymap": [],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": true
+  },
   "salicylic_acid3_ajisai74": {
     "name": "salicylic_acid3_ajisai74",
     "layout": [
