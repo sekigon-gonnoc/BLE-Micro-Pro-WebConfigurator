@@ -693,6 +693,18 @@
     "split": false,
     "lpme": false
   },
+  "takashicompany_palmslave": {
+    "name": "takashicompany_palmslave",
+    "layout": [
+      ""
+    ],
+    "keymap": [
+      "takashicompany_palmslave_default.bin"
+    ],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
   "takashicompany_radialex": {
     "name": "takashicompany_radialex",
     "layout": [
