@@ -1,0 +1,5 @@
+{"encoder":
+{"enabled":1,
+"definition":[
+{"pin":[17,16],"step":4,"action":[["ANY(1)","ANY(0)"], ["ANY(13)","ANY(14)"], ["ANY(0)","ANY(0)"], ["ANY(0)","ANY(0)"], ["ANY(0)","ANY(0)"]]}
+]}}
