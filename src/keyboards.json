@@ -673,6 +673,30 @@
     "split": true,
     "lpme": false
   },
+  "soo_suke_dressthing twins": {
+    "name": "soo_suke_dressthing twins",
+    "layout": [
+      ""
+    ],
+    "keymap": [
+      "soo_suke_dressthing twins_default.bin"
+    ],
+    "firmware": "ble_micro_pro",
+    "split": true,
+    "lpme": false
+  },
+  "soo_suke_dressthing": {
+    "name": "soo_suke_dressthing",
+    "layout": [
+      ""
+    ],
+    "keymap": [
+      "soo_suke_dressthing_default.bin"
+    ],
+    "firmware": "ble_micro_pro",
+    "split": false,
+    "lpme": false
+  },
   "takashicompany_endzone34": {
     "name": "takashicompany_endzone34",
     "layout": [
