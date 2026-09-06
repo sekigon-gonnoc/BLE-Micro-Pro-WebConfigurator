@@ -40,6 +40,12 @@ port updateConfig : E.Value -> Cmd msg
 port updateEeprom : E.Value -> Cmd msg
 
 
+port writeSelectedUserFile : () -> Cmd msg
+
+
+port userFileReady : (String -> msg) -> Sub msg
+
+
 port updatePairList : Int -> Cmd msg
 
 
@@ -98,6 +104,7 @@ type alias Model =
     , device1PairList : PairList
     , device2PairList : PairList
     , filterText : String
+    , selectedUserFile : Maybe String
     }
 
 
@@ -263,6 +270,7 @@ init flags url key =
       , device1PairList = { device = 0, pairs = [] }
       , device2PairList = { device = 1, pairs = [] }
       , filterText = ""
+      , selectedUserFile = Nothing
       }
     , Cmd.batch
         [ navbarCmd
@@ -291,6 +299,7 @@ subscriptions model =
     Sub.batch
         [ Navbar.subscriptions model.navbarState NavbarMsg
         , updateResult UpdateResultMsg
+        , userFileReady UserFileReady
         , updatePairListResult UpdatePairListMsg
         ]
 
@@ -318,6 +327,7 @@ type Msg
     | UpdateConfig
     | UpdateEeprom
     | UpdateResultMsg E.Value
+    | UserFileReady String
     | UpdateDevice1PairList
     | UpdateDevice2PairList
     | UpdatePairListMsg E.Value
@@ -422,7 +432,11 @@ update msg model =
             )
 
         SelectKeyboard name ->
-            ( updateKeyboard model name, Cmd.none )
+            let
+                newModel =
+                    updateKeyboard model name
+            in
+            ( { newModel | selectedUserFile = Nothing }, Cmd.none )
 
         SelectBootloader name ->
             ( { model | bootloader = Just name }, Cmd.none )
@@ -438,7 +452,7 @@ update msg model =
                 newModel =
                     updateKeyboard model <| Maybe.withDefault "" keyboard
             in
-            ( { newModel | filterText = name }, Cmd.none )
+            ( { newModel | filterText = name, selectedUserFile = Nothing }, Cmd.none )
 
         SetProceduer ->
             ( { model
@@ -557,18 +571,26 @@ update msg model =
             )
 
         UpdateConfig ->
-            let
-                cmd =
-                    E.object <| setupRequirementEncoder model.setupRequirement
-            in
-            ( model, updateConfig cmd )
+            if useUserUploadConfig model && model.selectedUserFile == Just "config" then
+                ( { model | selectedUserFile = Nothing }, writeSelectedUserFile () )
+
+            else
+                let
+                    cmd =
+                        E.object <| setupRequirementEncoder model.setupRequirement
+                in
+                ( model, updateConfig cmd )
 
         UpdateEeprom ->
-            let
-                cmd =
-                    E.object <| setupRequirementEncoder model.setupRequirement
-            in
-            ( model, updateEeprom cmd )
+            if model.setupRequirement.keyboard.name == "" && model.selectedUserFile == Just "eeprom" then
+                ( { model | selectedUserFile = Nothing }, writeSelectedUserFile () )
+
+            else
+                let
+                    cmd =
+                        E.object <| setupRequirementEncoder model.setupRequirement
+                in
+                ( model, updateEeprom cmd )
 
         UpdateResultMsg result ->
             ( { model
@@ -577,6 +599,9 @@ update msg model =
               }
             , Cmd.none
             )
+
+        UserFileReady fileType ->
+            ( { model | selectedUserFile = Just fileType }, Cmd.none )
 
         UpdateDevice1PairList ->
             ( model, updatePairList 0 )
@@ -1122,9 +1147,17 @@ viewEditConfig model =
                     False
             )
         ]
-        (progressSpinner
-            model
-            "Update"
+        (if useUserUploadConfig model then
+            [ text <|
+                if model.selectedUserFile == Just "config" then
+                    "Select serial port and write"
+
+                else
+                    "Select config file"
+            ]
+
+         else
+            progressSpinner model "Update"
         )
     , Button.button
         [ Button.outlineSecondary
@@ -1221,9 +1254,17 @@ viewEditKeymap model =
                     False
             )
         ]
-        (progressSpinner
-            model
-            "Update"
+        (if model.setupRequirement.keyboard.name == "" then
+            [ text <|
+                if model.selectedUserFile == Just "eeprom" then
+                    "Select serial port and write"
+
+                else
+                    "Select keymap file"
+            ]
+
+         else
+            progressSpinner model "Update"
         )
     , div []
         [ text "Use "

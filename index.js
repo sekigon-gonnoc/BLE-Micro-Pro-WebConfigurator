@@ -32,6 +32,7 @@ const app = Elm.App.init({
 const device1 = new WebSerial(128, 5);
 const device2 = new WebSerial(128, 5);
 let serialReceivedStr = "";
+let selectedUserFile = null;
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -155,7 +156,8 @@ app.ports.updateConfig.subscribe(async (setup) => {
         return;
       }
       assignSetup(fileBuffer, setup);
-      await transferFileByXmodem(fileBuffer);
+      selectedUserFile = fileBuffer;
+      app.ports.userFileReady.send("config");
     });
   } else {
     const fileName = setup.useLpme
@@ -210,7 +212,8 @@ app.ports.updateEeprom.subscribe(async (setup) => {
         notifyUpdateError(`Invalid eeprom file. `);
         return;
       }
-      await transferFileByXmodem(fileBuffer);
+      selectedUserFile = fileBuffer;
+      app.ports.userFileReady.send("eeprom");
     });
   }
 });
@@ -219,21 +222,25 @@ async function loadUserFile(extension, callback) {
   const input = document.createElement("input");
   input.type = "file";
   input.accept = extension;
-  input.addEventListener("change", () => {
+  input.addEventListener("change", async () => {
     const file = input.files?.[0];
+    input.remove();
     if (file == null) return;
-    const reader = new FileReader();
-
-    reader.onload = async () => {
-      const fileBuffer = new Uint8Array(await file.arrayBuffer());
-      await callback(fileBuffer);
-    };
-
-    reader.readAsArrayBuffer(file);
+    await callback(new Uint8Array(await file.arrayBuffer()));
   });
   input.click();
-  input.remove();
 }
+
+app.ports.writeSelectedUserFile.subscribe(async () => {
+  if (selectedUserFile == null) {
+    notifyUpdateError("Select a file before starting the transfer.");
+    return;
+  }
+
+  const fileBuffer = selectedUserFile;
+  selectedUserFile = null;
+  await transferFileByXmodem(fileBuffer);
+});
 
 async function transferFileByXmodem(data) {
   try {
